@@ -1,0 +1,30 @@
+body {
+    font-weight: 400;
+    background-color: #000;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+a {
+    text-decoration: none;
+    color: #000;
+}
+
+::-webkit-scrollbar {
+    width: auto;
+    max-width: 10px;
+    max-height: 10px;
+}
+
+::-webkit-scrollbar-corner,
+::-webkit-scrollbar-track {
+    background: #2a2a2a;
+}
+
+::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background: #5a5a5a;
+    border: 1px solid #2a2a2a;
+}

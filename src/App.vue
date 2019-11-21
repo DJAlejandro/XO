@@ -1,0 +1,41 @@
+<template>
+  <div id="app">
+    <side-bar />
+    <component class="content-area" :is="contentArea"></component>
+  </div>
+</template>
+
+<script>
+import SideBar from "./views/SideBar.vue";
+import Home from "./views/Home.vue";
+export default {
+  data() {
+    return {
+      contentArea: Home
+    };
+  },
+  components: {
+    SideBar
+  }
+};
+</script>script
+
+<style lang="scss">
+@import "~style/iconfont.css";
+
+#app {
+  font-size: 1rem;
+  font-weight: 400;
+  font-stretch: normal;
+  line-height: 1.7143;
+  color: #fff;
+  -webkit-font-smoothing: antialiased;
+  display: flex;
+  // max-height: calc(100vh - 98px);
+  .content-area {
+    display: flex;
+    flex: 1;
+    max-width: calc(100vw - 250px);
+  }
+}
+</style>
