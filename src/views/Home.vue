@@ -1,7 +1,7 @@
 <template>
   <div class="home">
     <v-header tag="Home" />
-    <div class="slider-wrapper">
+    <div class="slider-wrapper play-list-wrapper">
       <v-slider
         :swiperWidth="swiperWidth"
         :grabCursor="grabCursor"
@@ -11,16 +11,13 @@
       >
         <template v-for="ep in eps">
           <swiper-slide>
-            <div
-              class="banner-item"
-              :style="{backgroundImage: 'url('+ep.blurPicUrl+'?param=360y360)'}"
-            >
+            <div class="banner-item" :style="{backgroundImage: 'url('+ep.src+'?param=360y360)'}">
               <div class="banner-item-img-wrapper">
-                <img :src="ep.blurPicUrl+'?param=360y360'" :alt="ep.name" class="ep-img" />
+                <img :src="ep.src+'?param=360y360'" :alt="ep.title" class="ep-img" />
               </div>
               <div class="banner-item-content">
-                <span class="banner-item-content-text">{{ep.artist.name}}</span>
-                <span class="banner-item-content-text">{{ep.name}}</span>
+                <span class="banner-item-content-text">{{ep.title}}</span>
+                <span class="banner-item-content-text">{{ep.title}}</span>
                 <span class="banner-item-content-text"></span>
               </div>
             </div>
@@ -28,7 +25,18 @@
         </template>
       </v-slider>
     </div>
-    <home-slider :items="songs" />
+    <div class="play-list-wrapper">
+      <play-list :items="eps" />
+    </div>
+    <div class="play-list-wrapper">
+      <play-list :items="eps" />
+    </div>
+    <div class="play-list-wrapper">
+      <play-list :items="eps" />
+    </div>
+    <div class="play-list-wrapper">
+      <play-list :items="eps" />
+    </div>
   </div>
 </template>
 
@@ -40,13 +48,13 @@ import { log } from "util";
 import Vue from "vue";
 import VHeader from "components/VHeader.vue";
 import VSlider from "components/VSlider.vue";
-import HomeSlider from "./HomeSlider.vue";
+import PlayList from "./PlayList.vue";
 export default {
   name: "home",
   components: {
     VHeader,
     VSlider,
-    HomeSlider
+    PlayList
   },
   data() {
     return {
@@ -92,9 +100,27 @@ export default {
     });
 
     instance.get("/album/newest").then(res => {
+      let arr = [],
+        singers = [];
       console.log("EP");
-      console.log(res.data.albums);
-      this.eps = res.data.albums; //全部新碟（"EP/Single"）
+      res.data.albums.forEach(function(item) {
+        let { blurPicUrl, name, type, artists } = item;
+
+        artists.forEach(function(item) {
+          singers = [];
+          let { name } = item;
+          singers.push(name);
+        });
+        let singersName = singers.join(",");
+        arr.push({
+          src: blurPicUrl,
+          title: name,
+          artists: singersName,
+          type
+        });
+      });
+      console.log(arr);
+      this.eps = arr;
     });
     instance.get("/top/song").then(res => {
       console.log("song");
@@ -122,6 +148,13 @@ export default {
 .slider-wrapper {
   margin-top: 80px;
   width: 100%;
+}
+
+.swiper-slide:first-of-type {
+  margin-left: 28px;
+}
+.swiper-slide:last-of-type {
+  margin-right: 28px !important;
 }
 
 .banner-wrapper {
@@ -175,5 +208,9 @@ export default {
     background-size: 20px 20px;
     opacity: 1;
   }
+}
+
+.play-list-wrapper {
+  margin-bottom: 48px;
 }
 </style>

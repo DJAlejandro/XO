@@ -11,15 +11,11 @@
         <swiper-slide>
           <div class="home-slider-item">
             <div class="home-slider-img-wrapper">
-              <img
-                :src="item.album.blurPicUrl+'?param=200y200'"
-                :alt="item.album.name"
-                class="item-img"
-              />
+              <img :src="item.src+'?param=200y200'" :alt="item.title" class="item-img" />
             </div>
             <div class="home-slider-content">
-              <span class="home-slider-content-text">{{1}}</span>
-              <span class="home-slider-content-text">{{2}}</span>
+              <span class="home-slider-content-text">{{item.title}}</span>
+              <span class="home-slider-content-text">{{item.artists}}</span>
             </div>
           </div>
         </swiper-slide>
@@ -54,6 +50,14 @@ export default {
 .swiper-slide:last-of-type {
   margin-right: 28px;
 }
+
+.swiper-button-next,
+.swiper-button-prev {
+  opacity: 1;
+  width: 15px;
+  height: 20px;
+  margin-top: -30px;
+}
 .home-slider-wrapper {
   width: 100%;
   display: flex;
@@ -78,6 +82,7 @@ export default {
       .home-slider-content-text {
         font-size: 14px;
         color: #fff;
+        line-height: 20px;
       }
     }
   }
