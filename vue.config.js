@@ -13,7 +13,7 @@ module.exports = {
     indexPath: path.resolve(__dirname, './docs/index.html'), //之前是'../dist/index.html'
     outputDir: path.resolve(__dirname, './docs'), // 之前是 '../dist'
     assetsDir: 'static',
-    publicPath: './',    // 之前是 '/'
+    publicPath: './', // 之前是 '/'
 
     devServer: {
         // proxy: {
@@ -43,6 +43,7 @@ module.exports = {
             .set('js', resolve('src/assets/js'))
             .set('mixins', resolve('src/assets/js/mixins'))
             .set('components', resolve('src/components'))
+            .set('views', resolve('src/views'))
             .set('vue$', 'vue/dist/vue.esm.js')
         // 生产环境
         if (process.env.NODE_ENV === 'development') {

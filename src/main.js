@@ -9,9 +9,11 @@ import 'swiper/dist/css/swiper.css'
 import 'style/reset.scss'
 Vue.use(VueAwesomeSwiper)
 Vue.config.productionTip = false
-
+import VuePaginate from 'vue-paginate'
+Vue.use(VuePaginate)
 new Vue({
     router,
     store,
-    render: h => h(App)
+    render: h => h(App),
+
 }).$mount('#app')

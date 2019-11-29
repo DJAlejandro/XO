@@ -1,41 +1,34 @@
 <template>
   <div class="home">
     <v-header tag="Home" />
-    <div class="slider-wrapper play-list-wrapper">
+    <div class="slider-wrapper">
       <v-slider
         :swiperWidth="swiperWidth"
         :grabCursor="grabCursor"
         :slidesPerView="slidesPerView"
         :slidesPerGroup="slidesPerGroup"
         :spaceBetween="spaceBetween"
+        :autoplay="autoplay"
+        :loop="loop"
       >
-        <template v-for="ep in eps">
+        <template v-for="item in banners">
           <swiper-slide>
-            <div class="banner-item" :style="{backgroundImage: 'url('+ep.src+'?param=360y360)'}">
-              <div class="banner-item-img-wrapper">
-                <img :src="ep.src+'?param=360y360'" :alt="ep.title" class="ep-img" />
-              </div>
-              <div class="banner-item-content">
-                <span class="banner-item-content-text">{{ep.title}}</span>
-                <span class="banner-item-content-text">{{ep.title}}</span>
-                <span class="banner-item-content-text"></span>
-              </div>
-            </div>
+            <img :src="item.src" :alt="item.title" class="home-item-img" />
           </swiper-slide>
         </template>
       </v-slider>
     </div>
     <div class="play-list-wrapper">
-      <play-list :items="eps" />
+      <play-list :items="newAlbums" />
     </div>
     <div class="play-list-wrapper">
-      <play-list :items="eps" />
+      <play-list :items="topAlbums" />
     </div>
     <div class="play-list-wrapper">
-      <play-list :items="eps" />
+      <play-list :items="topSongs" />
     </div>
     <div class="play-list-wrapper">
-      <play-list :items="eps" />
+      <play-list :items="topLists" />
     </div>
   </div>
 </template>
@@ -58,14 +51,94 @@ export default {
   },
   data() {
     return {
-      eps: [],
+      banners: [],
       songs: [],
+      newAlbums: [],
+      topAlbums: [],
+      topSongs: [],
+      topLists: [],
       swiperWidth: 1126,
       grabCursor: true,
-      slidesPerView: 3.2,
-      slidesPerGroup: 3,
-      spaceBetween: 20
+      slidesPerView: 1.4,
+      slidesPerGroup: 1,
+      spaceBetween: 20,
+      autoplay: {
+        delay: 3000, //自动切换的时间间隔
+        stopOnLastSlide: false //如果设置为true，当切换到最后一个slide时停止自动切换
+      },
+      loop: true
     };
+  },
+  methods: {
+    serialData(item) {
+      let arr = [],
+        singers = [];
+      item.forEach(function(item) {
+        let { blurPicUrl, name, type, artists } = item;
+        singers = [];
+        artists.forEach(function(item) {
+          let { name } = item;
+          singers.push(name);
+        });
+        let singersName = singers.join(",");
+        arr.push({
+          src: blurPicUrl,
+          title: name,
+          artists: singersName,
+          type
+        });
+      });
+      return arr;
+    },
+    serialData2(item) {
+      let arr = [],
+        singers = [];
+      item.forEach(function(item) {
+        let { blurPicUrl, name, type, artists } = item.album;
+        singers = [];
+        artists.forEach(function(item) {
+          let { name } = item;
+          singers.push(name);
+        });
+        let singersName = singers.join(",");
+        arr.push({
+          src: blurPicUrl,
+          title: name,
+          artists: singersName,
+          type
+        });
+      });
+      return arr;
+    },
+    serialData3(item) {
+      let arr = [],
+        singers = [];
+      item.forEach(function(item) {
+        let { coverImgUrl, name, description } = item;
+        singers = [];
+
+        let singersName = singers.join(",");
+        arr.push({
+          src: coverImgUrl,
+          title: name,
+          artists: description
+        });
+      });
+      return arr;
+    },
+    serialData4(item) {
+      let arr = [],
+        singers = [];
+      item.forEach(function(item) {
+        let { pic, typeTitle } = item;
+
+        arr.push({
+          src: pic,
+          title: typeTitle
+        });
+      });
+      return arr;
+    }
   },
   created() {
     let instance = axios.create({
@@ -90,50 +163,41 @@ export default {
         }
       })
       .then(res => {
-        console.log("login");
-
-        console.log(res); //全部新歌
+        // console.log("login");
+        // console.log(res); //全部新歌
       });
     instance.get("/top/album").then(res => {
-      console.log("album");
-      console.log(res.data.albums); //新专辑
+      let data = this.serialData(res.data.albums.slice(0, 12));
+      this.topAlbums = {
+        title: "新碟上架",
+        data
+      };
     });
 
     instance.get("/album/newest").then(res => {
-      let arr = [],
-        singers = [];
-      console.log("EP");
-      res.data.albums.forEach(function(item) {
-        let { blurPicUrl, name, type, artists } = item;
-
-        artists.forEach(function(item) {
-          singers = [];
-          let { name } = item;
-          singers.push(name);
-        });
-        let singersName = singers.join(",");
-        arr.push({
-          src: blurPicUrl,
-          title: name,
-          artists: singersName,
-          type
-        });
-      });
-      console.log(arr);
-      this.eps = arr;
-    });
-    instance.get("/top/song").then(res => {
-      console.log("song");
-
-      this.songs = res.data.data.slice(0, 9);
-      console.log(this.songs); //全部新歌
+      let data = this.serialData(res.data.albums.slice(0, 12));
+      this.newAlbums = {
+        title: "最新专辑",
+        data
+      };
     });
 
-    instance.get("banner").then(res => {
-      console.log("banner");
-
-      console.log(res.data.banners); //全部新歌
+    instance.get("/top/song?type=96").then(res => {
+      let data = this.serialData2(res.data.data.slice(0, 12));
+      this.topSongs = {
+        title: "新歌速递",
+        data
+      };
     });
+
+    instance.get("banner?type=3").then(res => {
+      let data = this.serialData4(res.data.banners);
+      this.banners = data;
+    });
+
+    // instance.get("/toplist/detail").then(res => {
+    //   console.log(res.data); //全部新歌
+    // });
   }
 };
 </script>
@@ -146,69 +210,61 @@ export default {
   position: relative;
 }
 .slider-wrapper {
-  margin-top: 80px;
+  margin: 80px 0 48px 0;
   width: 100%;
 }
-
+.slider-wrapper /deep/ .swiper-button-disabled {
+  opacity: 0 !important;
+}
 .swiper-slide:first-of-type {
   margin-left: 28px;
 }
 .swiper-slide:last-of-type {
   margin-right: 28px !important;
 }
-
-.banner-wrapper {
-  .banner-item::before {
-    position: absolute;
-    content: "";
-    z-index: 2;
-    left: -10px;
-    top: -10px;
-    z-index: 2;
-    width: 110%;
-    height: 110%;
-    filter: blur(15px);
-    background: inherit;
-  }
-  .banner-item {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    height: 336px;
-    overflow: hidden;
-    background: inherit;
-    z-index: 1;
-    .banner-item-img-wrapper {
-      z-index: 10;
-      display: flex;
-      flex: 3;
-      align-items: center;
-      justify-content: center;
-      .ep-img {
-        width: 200px;
-        height: 200px;
-      }
-    }
-    .banner-item-content {
-      position: relative;
-      display: flex;
-      flex: 1;
-      z-index: 10;
-      background-color: rgba(0, 0, 0, 0.6);
-      color: #fff;
-      padding: 15px;
-      line-height: 1.5;
-    }
-  }
-  .swiper-button-next,
-  .swiper-button-prev {
-    width: 20px;
-    height: 20px;
-    margin-top: -70px;
-    background-size: 20px 20px;
-    opacity: 1;
-  }
+.home-item-img {
+  // width: 100%;
+  height: 300px;
 }
+// .banner-item::before {
+//   position: absolute;
+//   content: "";
+//   z-index: 2;
+//   left: -10px;
+//   top: -10px;
+//   z-index: 2;
+//   width: 110%;
+//   height: 110%;
+//   filter: blur(15px);
+//   background: inherit;
+// }
+// .banner-item {
+//   position: relative;
+//   display: flex;
+//   flex-direction: column;
+//   height: 336px;
+//   overflow: hidden;
+//   background: inherit;
+//   z-index: 1;
+//   .banner-item-img-wrapper {
+//     z-index: 10;
+//     display: flex;
+//     flex: 3;
+//     align-items: center;
+//     justify-content: center;
+
+//   }
+//   .banner-item-content {
+//     position: relative;
+//     display: flex;
+//     flex: 1;
+//     z-index: 10;
+//     background-color: rgba(0, 0, 0, 0.6);
+//     color: #fff;
+//     padding: 15px;
+//     line-height: 1.5;
+//   }
+// }
 
 .play-list-wrapper {
   margin-bottom: 48px;

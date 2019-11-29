@@ -1,7 +1,12 @@
 <template>
   <div id="app">
     <side-bar />
-    <component class="content-area" :is="contentArea"></component>
+    <div class="content-area">
+      <div class="content-area-scorll">
+        <router-view></router-view>
+      </div>
+      <!-- <component class="content-area-scorll" :is="contentArea"></component> -->
+    </div>
   </div>
 </template>
 
@@ -18,7 +23,7 @@ export default {
     SideBar
   }
 };
-</script>script
+</script>
 
 <style lang="scss">
 @import "~style/iconfont.css";
@@ -36,6 +41,13 @@ export default {
     display: flex;
     flex: 1;
     max-width: calc(100vw - 250px);
+    .content-area-scorll {
+      overflow-x: hidden;
+      overflow-y: scroll;
+      height: 100vh;
+
+      width: 100%;
+    }
   }
 }
 </style>
