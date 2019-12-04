@@ -70,62 +70,23 @@ export default {
     };
   },
   methods: {
-    serialData(item) {
-      let arr = [],
-        singers = [];
-      item.forEach(function(item) {
-        let { blurPicUrl, name, type, artists } = item;
-        singers = [];
-        artists.forEach(function(item) {
-          let { name } = item;
-          singers.push(name);
-        });
-        let singersName = singers.join(",");
-        arr.push({
-          src: blurPicUrl,
-          title: name,
-          artists: singersName,
-          type
-        });
-      });
-      return arr;
-    },
-    serialData2(item) {
-      let arr = [],
-        singers = [];
-      item.forEach(function(item) {
-        let { blurPicUrl, name, type, artists } = item.album;
-        singers = [];
-        artists.forEach(function(item) {
-          let { name } = item;
-          singers.push(name);
-        });
-        let singersName = singers.join(",");
-        arr.push({
-          src: blurPicUrl,
-          title: name,
-          artists: singersName,
-          type
-        });
-      });
-      return arr;
-    },
-    serialData3(item) {
-      let arr = [],
-        singers = [];
-      item.forEach(function(item) {
-        let { coverImgUrl, name, description } = item;
-        singers = [];
+    serialData(data, tag) {
+      let arr = [];
+      data.forEach(function(item) {
+        tag ? (item = item.album) : (item = item);
+        let { blurPicUrl, name, type, artists, id } = item;
 
-        let singersName = singers.join(",");
         arr.push({
-          src: coverImgUrl,
+          src: blurPicUrl,
           title: name,
-          artists: description
+          artists,
+          type,
+          id
         });
       });
       return arr;
     },
+
     serialData4(item) {
       let arr = [],
         singers = [];
@@ -167,7 +128,7 @@ export default {
         // console.log(res); //全部新歌
       });
     instance.get("/top/album").then(res => {
-      let data = this.serialData(res.data.albums.slice(0, 12));
+      let data = this.serialData(res.data.albums.slice(0, 12), false);
       this.topAlbums = {
         title: "新碟上架",
         data
@@ -175,7 +136,7 @@ export default {
     });
 
     instance.get("/album/newest").then(res => {
-      let data = this.serialData(res.data.albums.slice(0, 12));
+      let data = this.serialData(res.data.albums.slice(0, 12), false);
       this.newAlbums = {
         title: "最新专辑",
         data
@@ -183,7 +144,8 @@ export default {
     });
 
     instance.get("/top/song?type=96").then(res => {
-      let data = this.serialData2(res.data.data.slice(0, 12));
+      let reres = res.data.data.slice(0, 12);
+      let data = this.serialData(reres, true);
       this.topSongs = {
         title: "新歌速递",
         data

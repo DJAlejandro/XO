@@ -21,6 +21,10 @@ const routes = [{
     {
         path: '/view/pages/category',
         component: Category
+    },
+    {
+        path: '/album',
+        component: () => import( /* Explore */ '../views/AlbumDetail.vue')
     }
 ]
 

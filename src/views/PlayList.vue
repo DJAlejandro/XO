@@ -14,7 +14,7 @@
       <template v-for="item in items.data">
         <swiper-slide>
           <div class="home-slider-item">
-            <div class="home-slider-img-wrapper">
+            <div class="home-slider-img-wrapper" @click="goToAlbum(item.id)">
               <img :src="item.src+'?param=200y200'" :alt="item.title" class="item-img" />
               <div class="home-slider-overlay">
                 <span class="icon-more iconfont"></span>
@@ -24,7 +24,12 @@
             </div>
             <div class="home-slider-content">
               <span class="home-slider-content-text">{{item.title}}</span>
-              <span class="home-slider-content-text">{{item.artists}}</span>
+              <span class="home-slider-content-text">
+                <span class="aritst" v-for="(aritst,index) in item.artists">
+                  <i v-if="index!==0">,</i>
+                  <a>{{aritst.name}}</a>
+                </span>
+              </span>
             </div>
           </div>
         </swiper-slide>
@@ -43,11 +48,17 @@ export default {
       grabCursor: true,
       slidesPerView: 6,
       slidesPerGroup: 5,
-      spaceBetween: 20
+      spaceBetween: 20,
+      albumList: {}
     };
   },
   components: {
     VSlider
+  },
+  methods: {
+    goToAlbum(id) {
+      this.$router.push({ path: "/album", query: { id } });
+    }
   }
 };
 </script>
@@ -157,7 +168,8 @@ export default {
       font-size: 14px;
       color: #fff;
       line-height: 20px;
-      &:last-of-type {
+      a,
+      i {
         color: rgba(255, 255, 255, 0.5);
       }
     }

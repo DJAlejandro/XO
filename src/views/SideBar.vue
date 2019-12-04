@@ -20,7 +20,7 @@
       <section class="section">
         <div class="section-header">My Collection</div>
 
-        <router-link to="/view/pages/a" class="section-item">
+        <router-link to="/ablum" class="section-item">
           <span class="icon-mix iconfont"></span>
           <span class="section-item-text">My Mix</span>
         </router-link>
