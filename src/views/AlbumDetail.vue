@@ -75,29 +75,40 @@
         </div>
       </div>
     </div>
+    <related-artists :relatedArtists="relatedArtists" />
   </div>
 </template>
 <script>
 import axios from "axios";
 import { format } from "date-fns";
+import { mapState } from "vuex";
 
 import VHeader from "components/VHeader.vue";
+import RelatedArtists from "./RelatedArtists.vue";
 let instance = axios.create({
   baseURL: "http://localhost:3000",
-  timeout: 30000
+  timeout: 30000,
+  withCredentials: true
 });
 export default {
   props: {},
   data() {
     return {
       albumList: {},
-      activeIndex: 0
+      activeIndex: 0,
+      artist: {},
+      relatedArtists: {}
     };
   },
   components: {
-    VHeader
+    VHeader,
+    RelatedArtists
   },
   computed: {
+    ...mapState({
+      // 箭头函数可使代码更简练
+      userCookie: "userCookie"
+    }),
     time() {
       if (this.albumList.publishTime) {
         let time = new Date(this.albumList.publishTime);
@@ -108,6 +119,7 @@ export default {
       }
     }
   },
+
   methods: {
     InstoreTime(time) {
       let msec = Math.floor(time / 1000) * 1000;
@@ -121,6 +133,8 @@ export default {
   },
   mounted() {
     let id = this.$route.query.id;
+    console.log(this.userCookie);
+
     instance
       .get("/album", {
         params: {
@@ -131,7 +145,7 @@ export default {
         let data = res.data;
         let tracks = [];
         let {
-          album: { blurPicUrl, name, artists, publishTime },
+          album: { blurPicUrl, name, artists, artist, publishTime },
           songs
         } = data;
 
@@ -144,6 +158,8 @@ export default {
             id
           });
         });
+
+        this.artist = artist;
         this.albumList = {
           src: blurPicUrl, //专辑封面
           name, //专辑名称
@@ -151,6 +167,17 @@ export default {
           publishTime, //发行时间
           tracks //歌曲
         };
+        return instance.get("/simi/artist", {
+          params: {
+            id: this.artist.id
+          }
+        });
+      })
+      .then(res => {
+        console.log("relatedArtists:");
+        console.log(res);
+
+        this.relatedArtists = res;
       });
   }
 };
@@ -284,6 +311,8 @@ export default {
       height: 48px;
       width: 100%;
       &:hover {
+        background-color: rgba(246, 245, 255, 0.1);
+        outline: 0;
         .media-index {
           .play {
             display: flex;

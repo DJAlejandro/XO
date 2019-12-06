@@ -35,6 +35,9 @@
 
 <script>
 // @ is an alias to /src
+import Cookies from "js-cookie";
+import { mapActions } from "vuex";
+import { mapState } from "vuex";
 
 import axios from "axios";
 import { log } from "util";
@@ -70,6 +73,9 @@ export default {
     };
   },
   methods: {
+    ...mapActions([
+      "setCookieActions" // 将 `this.setCookieActions()` 映射为 `this.$store.dispatch('setCookieActions')
+    ]),
     serialData(data, tag) {
       let arr = [];
       data.forEach(function(item) {
@@ -104,7 +110,8 @@ export default {
   created() {
     let instance = axios.create({
       baseURL: "http://localhost:3000",
-      timeout: 30000
+      timeout: 30000,
+      withCredentials: true
     });
 
     // instance.get('/comment/music',{
@@ -117,15 +124,13 @@ export default {
     // })
 
     instance
-      .get("/login", {
-        params: {
-          email: "siyangslg@163.com",
-          password: "si21040404"
-        }
+      .post("/login", {
+        email: "siyangslg@163.com",
+        password: "si21040404"
       })
       .then(res => {
-        // console.log("login");
-        // console.log(res); //全部新歌
+        let user = Cookies.get("MUSIC_U");
+        this.setCookieActions(user);
       });
     instance.get("/top/album").then(res => {
       let data = this.serialData(res.data.albums.slice(0, 12), false);
@@ -160,6 +165,15 @@ export default {
     // instance.get("/toplist/detail").then(res => {
     //   console.log(res.data); //全部新歌
     // });
+  },
+  computed: {
+    ...mapState({
+      // 箭头函数可使代码更简练
+      userCookie: "userCookie"
+    })
+  },
+  mounted() {
+    console.log(this.userCookie);
   }
 };
 </script>
