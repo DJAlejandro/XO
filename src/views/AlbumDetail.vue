@@ -75,7 +75,7 @@
         </div>
       </div>
     </div>
-    <related-artists :relatedArtists="relatedArtists" />
+    <artists-list :artistsList="artistsList" />
   </div>
 </template>
 <script>
@@ -84,7 +84,7 @@ import { format } from "date-fns";
 import { mapState } from "vuex";
 
 import VHeader from "components/VHeader.vue";
-import RelatedArtists from "./RelatedArtists.vue";
+import ArtistsList from "./ArtistsList.vue";
 let instance = axios.create({
   baseURL: "http://localhost:3000",
   timeout: 30000,
@@ -97,12 +97,12 @@ export default {
       albumList: {},
       activeIndex: 0,
       artist: {},
-      relatedArtists: {}
+      artistsList: {}
     };
   },
   components: {
     VHeader,
-    RelatedArtists
+    ArtistsList
   },
   computed: {
     ...mapState({
@@ -124,7 +124,8 @@ export default {
     InstoreTime(time) {
       let msec = Math.floor(time / 1000) * 1000;
       let minutes = parseInt(msec / (1000 * 60));
-      let seconds = parseInt((msec % (1000 * 60)) / 1000);
+      let seconds = parseInt((msec % (1000 * 60)) / 1000) + "";
+      seconds = seconds.padStart(2, "0");
       return minutes + ":" + seconds;
     },
     changeIndex(index) {
@@ -133,7 +134,6 @@ export default {
   },
   mounted() {
     let id = this.$route.query.id;
-    console.log(this.userCookie);
 
     instance
       .get("/album", {
@@ -174,10 +174,20 @@ export default {
         });
       })
       .then(res => {
-        console.log("relatedArtists:");
-        console.log(res);
+        let artists = [];
+        res.data.artists.forEach(function(item) {
+          let { id, img1v1Url, name } = item;
+          artists.push({
+            id,
+            name,
+            src: img1v1Url
+          });
+        });
 
-        this.relatedArtists = res;
+        this.artistsList = {
+          title: "Related Artists",
+          data: artists
+        };
       });
   }
 };
@@ -417,5 +427,8 @@ export default {
       }
     }
   }
+}
+.play-list-wrapper {
+  margin-bottom: 48px;
 }
 </style>

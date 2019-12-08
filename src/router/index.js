@@ -25,6 +25,10 @@ const routes = [{
     {
         path: '/album',
         component: () => import( /* Explore */ '../views/AlbumDetail.vue')
+    },
+    {
+        path: '/artist',
+        component: () => import( /* Explore */ '../views/ArtistDetail.vue')
     }
 ]
 

@@ -3,3 +3,12 @@
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+
+@mixin ellipsis2($time) {
+    display: -webkit-box;
+    -webkit-box-orient: vertical; //表示盒子对象的子元素的排列方式
+    -webkit-line-clamp: $time; //限制文本的行数，表示文本第多少行省略
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+}
