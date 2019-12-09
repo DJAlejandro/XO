@@ -75,7 +75,7 @@
         </div>
       </div>
     </div>
-    <artists-list :artistsList="artistsList" />
+    <artists-list :artistsList="artistsList" @scroll-top="scrollTop" />
   </div>
 </template>
 <script>
@@ -121,6 +121,9 @@ export default {
   },
 
   methods: {
+    scrollTop() {
+      this.$emit("scroll-top");
+    },
     InstoreTime(time) {
       let msec = Math.floor(time / 1000) * 1000;
       let minutes = parseInt(msec / (1000 * 60));

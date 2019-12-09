@@ -1,7 +1,7 @@
 <template>
-  <div class="play-list-item">
-    <div class="play-list-header">
-      <h2 class="play-list-title">{{artistsList.title}}</h2>
+  <div class="artist-list-item">
+    <div class="artist-list-header">
+      <h2 class="artist-list-title">{{artistsList.title}}</h2>
       <a class="view-all" href="#">View all</a>
     </div>
     <v-slider
@@ -13,17 +13,19 @@
     >
       <template v-for="item in artistsList.data">
         <swiper-slide>
-          <div class="home-slider-item">
+          <div class="home-slider-item" @click="goToArtist(item.id)">
             <div class="home-slider-img-wrapper">
               <img :src="item.src+'?param=200y200'" :alt="item.name" class="item-img" />
               <div class="home-slider-overlay">
-                <span class="icon-more iconfont"></span>
-                <span class="icon-play iconfont"></span>
-                <span class="icon-favourite iconfont"></span>
+                <span class="icon-more iconfont" @click.stop="go"></span>
+                <span class="icon-play iconfont" @click.stop="go"></span>
+                <span class="icon-favourite iconfont" @click.stop="go"></span>
               </div>
             </div>
             <div class="home-slider-content">
-              <span class="home-slider-content-text" @click="goToArtist(item.id)">{{item.name}}</span>
+              <span class="home-slider-content-text">
+                <a href="#">{{item.name}}</a>
+              </span>
             </div>
           </div>
         </swiper-slide>
@@ -56,8 +58,12 @@ export default {
   },
   methods: {
     goToArtist(id) {
-      this.$router.push({ path: "/artist", query: { id } });
-    }
+      this.$emit("scroll-top");
+      this.$router.push({ path: "/artist", query: { id } }).catch(err => {
+        console.log(err);
+      });
+    },
+    go() {}
   }
 };
 </script>
@@ -65,7 +71,7 @@ export default {
 <style lang="scss" scoped>
 @import "~style/mixin.scss";
 
-.play-list-item /deep/ .swiper-container {
+.artist-list-item /deep/ .swiper-container {
   mask-size: 100%;
   mask-position: 0;
   mask-image: linear-gradient(
@@ -77,7 +83,7 @@ export default {
   );
 }
 
-.play-list-item /deep/ .swiper-button-disabled {
+.artist-list-item /deep/ .swiper-button-disabled {
   opacity: 0;
 }
 .swiper-slide:first-of-type {
@@ -86,14 +92,14 @@ export default {
 .swiper-slide:last-of-type {
   margin-right: 28px;
 }
-.play-list-item {
+.artist-list-item {
   display: flex;
   flex-direction: column;
-  .play-list-header {
+  .artist-list-header {
     display: flex;
     align-items: baseline;
     margin: 0 28px;
-    .play-list-title {
+    .artist-list-title {
       flex-grow: 1;
       font-size: 16px;
       font-weight: 600;
@@ -172,9 +178,11 @@ export default {
       color: #fff;
       line-height: 20px;
       text-align: center;
-      a,
-      i {
-        color: rgba(255, 255, 255, 0.5);
+      a {
+        color: #fff;
+        &:hover {
+          text-decoration: underline;
+        }
       }
     }
   }

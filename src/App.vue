@@ -2,8 +2,8 @@
   <div id="app">
     <side-bar />
     <div class="content-area">
-      <div class="content-area-scorll">
-        <router-view></router-view>
+      <div class="content-area-scorll" ref="content">
+        <router-view @scroll-top="scrollTop"></router-view>
       </div>
       <!-- <component class="content-area-scorll" :is="contentArea"></component> -->
     </div>
@@ -21,6 +21,12 @@ export default {
   },
   components: {
     SideBar
+  },
+  methods: {
+    scrollTop() {
+      console.log(555555555);
+      this.$refs.content.scrollTop = 0;
+    }
   }
 };
 </script>

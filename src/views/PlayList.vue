@@ -17,15 +17,21 @@
             <div class="home-slider-img-wrapper" @click="goToAlbum(item.id)">
               <img :src="item.src+'?param=200y200'" :alt="item.title" class="item-img" />
               <div class="home-slider-overlay">
-                <span class="icon-more iconfont"></span>
-                <span class="icon-play iconfont"></span>
-                <span class="icon-favourite iconfont"></span>
+                <span class="icon-more iconfont" @click.stop="go"></span>
+                <span class="icon-play iconfont" @click.stop="go"></span>
+                <span class="icon-favourite iconfont" @click.stop="go"></span>
               </div>
             </div>
             <div class="home-slider-content">
-              <span class="home-slider-content-text">{{item.title}}</span>
+              <span class="home-slider-content-text" @click="goToAlbum(item.id)">
+                <a>{{item.title}}</a>
+              </span>
               <span class="home-slider-content-text">
-                <span class="aritst" v-for="(aritst,index) in item.artists">
+                <span
+                  class="aritst"
+                  v-for="(aritst,index) in item.artists"
+                  @click="goToArtist(aritst.id)"
+                >
                   <i v-if="index!==0">,</i>
                   <a>{{aritst.name}}</a>
                 </span>
@@ -58,7 +64,15 @@ export default {
   methods: {
     goToAlbum(id) {
       this.$router.push({ path: "/album", query: { id } });
-    }
+    },
+    goToArtist(id) {
+      this.$emit("scroll-top");
+
+      this.$router.push({ path: "/artist", query: { id } }).catch(err => {
+        console.log(err);
+      });
+    },
+    go() {}
   }
 };
 </script>
@@ -166,11 +180,21 @@ export default {
     .home-slider-content-text {
       @include ellipsis;
       font-size: 14px;
-      color: #fff;
       line-height: 20px;
-      a,
-      i {
+
+      a {
+        color: #fff;
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+      &:last-of-type {
         color: rgba(255, 255, 255, 0.5);
+
+        a,
+        i {
+          color: rgba(255, 255, 255, 0.5);
+        }
       }
     }
   }

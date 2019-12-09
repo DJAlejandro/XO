@@ -2,7 +2,10 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
 import Category from '../views/Category.vue'
-
+const routerPush = VueRouter.prototype.push
+VueRouter.prototype.push = function push(location) {
+    return routerPush.call(this, location).catch(error => error)
+}
 Vue.use(VueRouter)
 
 const routes = [{
@@ -28,6 +31,7 @@ const routes = [{
     },
     {
         path: '/artist',
+
         component: () => import( /* Explore */ '../views/ArtistDetail.vue')
     }
 ]
@@ -35,9 +39,13 @@ const routes = [{
 const router = new VueRouter({
     mode: 'history',
     base: process.env.BASE_URL,
-    routes
-
-
+    routes,
+    scrollBehavior(to, from, savedPosition) {
+        return {
+            x: 0,
+            y: 0
+        }
+    }
 })
 
 export default router

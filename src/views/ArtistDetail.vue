@@ -31,15 +31,15 @@
       </div>
     </div>
     <div class="play-list-wrapper">
-      <play-list :items="albums" />
+      <play-list :items="albums" @scroll-top="scrollTop" />
     </div>
     <div class="play-list-wrapper">
-      <play-list :items="eps" />
+      <play-list :items="eps" @scroll-top="scrollTop" />
     </div>
     <div class="play-list-wrapper" v-if="others.length>0">
-      <play-list :items="others" />
+      <play-list :items="others" @scroll-top="scrollTop" />
     </div>
-    <artists-list :artistsList="artistsList" />
+    <artists-list :artistsList="artistsList" @scroll-top="scrollTop" />
   </div>
 </template>
 
@@ -68,12 +68,14 @@ export default {
     };
   },
   methods: {
+    scrollTop() {
+      this.$emit("scroll-top");
+    },
     serialData(data, tag) {
       let arr = [];
       data.forEach(function(item) {
         tag ? (item = item.album) : (item = item);
         let { blurPicUrl, name, type, artists, id } = item;
-        console.log(`type${type}`);
 
         arr.push({
           src: blurPicUrl,
@@ -84,6 +86,95 @@ export default {
         });
       });
       return arr;
+    },
+
+    refreshArtist() {
+      let id = this.$route.query.id;
+
+      instance
+        .get("/artists/desc", {
+          params: {
+            id
+          }
+        })
+        .then(res => {
+          this.artist = res.data.artist;
+          // console.log(res); //获取歌手描述
+        });
+
+      instance
+        .get("/artists", {
+          params: {
+            id
+          }
+        })
+        .then(res => {
+          // console.log(res); //获取歌手单曲
+        });
+
+      instance
+        .get("/artist/album", {
+          params: {
+            id
+          }
+        })
+        .then(res => {
+          // console.log(res); //获取歌手专辑
+
+          let data = this.serialData(res.data.hotAlbums, false);
+          let eps = [];
+          let albums = [];
+          let others = [];
+          data.forEach(function(item) {
+            switch (item.type) {
+              case "EP/Single":
+                eps.push(item);
+                break;
+              case "专辑":
+                albums.push(item);
+                break;
+              default:
+                others.push(item);
+                break;
+            }
+          });
+          this.eps = {
+            title: "EP & Singles",
+            data: eps
+          };
+          this.albums = {
+            title: "Albums",
+            data: albums
+          };
+          this.others = {
+            title: "Others",
+            data: others
+          };
+        });
+
+      instance
+        .get("/simi/artist", {
+          params: {
+            id
+          }
+        })
+        .then(res => {
+          // console.log(res); //获取相似歌手
+          let artists = [];
+          res.data.artists.forEach(function(item) {
+            let { id, img1v1Url, name } = item;
+            artists.push({
+              id,
+              name,
+              src: img1v1Url
+            });
+          });
+
+          this.artistsList = {
+            title: "Related Artists",
+            data: artists
+          };
+        });
     }
   },
   components: {
@@ -92,91 +183,13 @@ export default {
     VHeader
   },
   mounted() {
-    let id = this.$route.query.id;
-    instance
-      .get("/artists/desc", {
-        params: {
-          id
-        }
-      })
-      .then(res => {
-        this.artist = res.data.artist;
-        console.log(res); //获取歌手描述
-      });
-
-    instance
-      .get("/artists", {
-        params: {
-          id
-        }
-      })
-      .then(res => {
-        // console.log(res); //获取歌手单曲
-      });
-
-    instance
-      .get("/artist/album", {
-        params: {
-          id
-        }
-      })
-      .then(res => {
-        // console.log(res); //获取歌手专辑
-
-        let data = this.serialData(res.data.hotAlbums, false);
-        let eps = [];
-        let albums = [];
-        let others = [];
-        data.forEach(function(item) {
-          switch (item.type) {
-            case "EP/Single":
-              eps.push(item);
-              break;
-            case "专辑":
-              albums.push(item);
-              break;
-            default:
-              others.push(item);
-              break;
-          }
-        });
-        this.eps = {
-          title: "EP & Singles",
-          data: eps
-        };
-        this.albums = {
-          title: "Albums",
-          data: albums
-        };
-        this.others = {
-          title: "Others",
-          data: others
-        };
-      });
-
-    instance
-      .get("/simi/artist", {
-        params: {
-          id
-        }
-      })
-      .then(res => {
-        // console.log(res); //获取相似歌手
-        let artists = [];
-        res.data.artists.forEach(function(item) {
-          let { id, img1v1Url, name } = item;
-          artists.push({
-            id,
-            name,
-            src: img1v1Url
-          });
-        });
-
-        this.artistsList = {
-          title: "Related Artists",
-          data: artists
-        };
-      });
+    this.refreshArtist();
+  },
+  watch: {
+    $route(to, from) {
+      // 对路由变化作出响应...
+      this.refreshArtist();
+    }
   }
 };
 </script>
