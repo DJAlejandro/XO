@@ -83,4 +83,4 @@ const User = {
 组件AlbumDetail，ArtistDetail所在路由的路径path: '/album'，path: '/artist'和根组件Home的路径path: '/'在同一层级中，所以它们公用根组件的router-view元素。在这些组件内触发的自定义事件都能被根组件监听。另外，这些组件在HTML结构上渲染的位置和HOME组件相同。这样我们才会看到在切换路由前后，不同组件渲染的位置相同，且都触发了scroll-top事件，组件回滚到顶部是效果
 
 
-
+**同一层级的路由，复用的router-view相同，在HTML结构上渲染的位置相同**
