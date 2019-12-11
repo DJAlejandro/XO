@@ -72,3 +72,15 @@ const User = {
 
 
 - [vue路由切换时内容组件的滚动条回到顶部](https://blog.csdn.net/weixin_30925411/article/details/101078816)
+
+
+## 2.嵌套路由
+
+
+这个例子将所有自定义事件scroll-top监听在根组件的router-view元素上的原理是嵌套路由
+
+
+组件AlbumDetail，ArtistDetail所在路由的路径path: '/album'，path: '/artist'和根组件Home的路径path: '/'在同一层级中，所以它们公用根组件的router-view元素。在这些组件内触发的自定义事件都能被根组件监听。另外，这些组件在HTML结构上渲染的位置和HOME组件相同。这样我们才会看到在切换路由前后，不同组件渲染的位置相同，且都触发了scroll-top事件，组件回滚到顶部是效果
+
+
+
