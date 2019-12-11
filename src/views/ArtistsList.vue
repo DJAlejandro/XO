@@ -58,10 +58,7 @@ export default {
   },
   methods: {
     goToArtist(id) {
-      this.$emit("scroll-top");
-      this.$router.push({ path: "/artist", query: { id } }).catch(err => {
-        console.log(err);
-      });
+      this.$router.push({ path: "/artist", query: { id } }).catch(err => {});
     },
     go() {}
   }

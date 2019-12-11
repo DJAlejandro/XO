@@ -66,8 +66,6 @@ export default {
       this.$router.push({ path: "/album", query: { id } });
     },
     goToArtist(id) {
-      this.$emit("scroll-top");
-
       this.$router.push({ path: "/artist", query: { id } }).catch(err => {
         console.log(err);
       });

@@ -5,11 +5,15 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
     state: {
-        userCookie: ""
+        userCookie: "",
+        trackList: []
     },
     mutations: {
         setCookie(state, data) {
             state.userCookie = data
+        },
+        setTrackList(state, data) {
+            state.trackList = data
         }
     },
     actions: {
@@ -17,6 +21,14 @@ export default new Vuex.Store({
             return new Promise((resolve, reject) => {
                 setTimeout(() => {
                     context.commit('setCookie', data)
+                    resolve()
+                }, 1000)
+            })
+        },
+        setTrackListActions(context, data) {
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    context.commit('setTrackList', data)
                     resolve()
                 }, 1000)
             })

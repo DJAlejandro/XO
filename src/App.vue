@@ -24,7 +24,6 @@ export default {
   },
   methods: {
     scrollTop() {
-      console.log(555555555);
       this.$refs.content.scrollTop = 0;
     }
   }

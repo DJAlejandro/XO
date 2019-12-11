@@ -30,16 +30,23 @@
         </div>
       </div>
     </div>
-    <div class="play-list-wrapper">
-      <play-list :items="albums" @scroll-top="scrollTop" />
+    <div class="media-container">
+      <div class="media-header">
+        <div class="media-header-title">Top Tracks</div>
+        <a href="#" class="view-all" @click="goToTracks()">View all</a>
+      </div>
+      <trackList :shortFlag="shortFlag"></trackList>
     </div>
     <div class="play-list-wrapper">
-      <play-list :items="eps" @scroll-top="scrollTop" />
+      <play-list :items="albums" />
+    </div>
+    <div class="play-list-wrapper">
+      <play-list :items="eps" />
     </div>
     <div class="play-list-wrapper" v-if="others.length>0">
-      <play-list :items="others" @scroll-top="scrollTop" />
+      <play-list :items="others" />
     </div>
-    <artists-list :artistsList="artistsList" @scroll-top="scrollTop" />
+    <artists-list :artistsList="artistsList" />
   </div>
 </template>
 
@@ -47,6 +54,8 @@
 import ArtistsList from "./ArtistsList.vue";
 import PlayList from "./PlayList.vue";
 import VHeader from "components/VHeader.vue";
+import TrackList from "./TrackList.vue";
+import { mapActions } from "vuex";
 
 import axios from "axios";
 
@@ -64,12 +73,17 @@ export default {
       eps: [],
       others: [],
       artistsList: {},
-      artist: {}
+      artist: {},
+      shortFlag: true
     };
   },
   methods: {
-    scrollTop() {
-      this.$emit("scroll-top");
+    ...mapActions(["setTrackListActions"]),
+    goToTracks() {
+      let id = this.$route.query.id;
+      this.$router
+        .push({ path: "/top-tracks", query: { id } })
+        .catch(err => {});
     },
     serialData(data, tag) {
       let arr = [];
@@ -89,6 +103,8 @@ export default {
     },
 
     refreshArtist() {
+      this.$emit("scroll-top");
+
       let id = this.$route.query.id;
 
       instance
@@ -109,7 +125,18 @@ export default {
           }
         })
         .then(res => {
-          // console.log(res); //获取歌手单曲
+           //获取歌手单曲
+          let tracks = [];
+          res.data.hotSongs.forEach(item => {
+            let { dt, name, id, ar } = item;
+            tracks.push({
+              time: dt,
+              name,
+              artists: ar,
+              id
+            });
+          });
+          this.setTrackListActions(tracks);
         });
 
       instance
@@ -180,7 +207,8 @@ export default {
   components: {
     PlayList,
     ArtistsList,
-    VHeader
+    VHeader,
+    TrackList
   },
   mounted() {
     this.refreshArtist();
@@ -297,6 +325,29 @@ export default {
           }
         }
       }
+    }
+  }
+}
+.media-container {
+  margin: 0 28px;
+  margin-bottom: 48px;
+  min-height: 120px;
+  .media-header {
+    display: flex;
+    align-items: baseline;
+    margin: 0 28px;
+    .media-header-title {
+      flex-grow: 1;
+      font-size: 16px;
+      font-weight: 600;
+      line-height: 1.75;
+      margin: 0 0 16px;
+    }
+    .view-all {
+      flex-shrink: 0;
+      color: rgba(229, 238, 255, 0.6);
+      font-weight: 600;
+      font-size: 14px;
     }
   }
 }
