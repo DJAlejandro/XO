@@ -4,6 +4,7 @@
       <div class="media-index">#</div>
       <div class="media-title">title</div>
       <div class="media-artist">artist</div>
+      <div class="media-album" v-if="viewFull">album</div>
       <div class="media-time">time</div>
       <div class="media-controls"></div>
     </div>
@@ -14,17 +15,25 @@
       @click="changeIndex(index)"
     >
       <div class="media-index">
-        <div class="text">{{index+1}}</div>
+        <div class="text" v-if="viewFull" :class="{active:viewFull}">
+          <img :src="track.album.picUrl+'?param=42y42'" alt="track.name" />
+        </div>
+        <div class="text" v-else>{{index+1}}</div>
         <span class="play">
           <span class="icon-play iconfont"></span>
         </span>
       </div>
       <div class="media-title">{{track.name}}</div>
       <div class="media-artist">
-        <span v-for="(artist,index) in track.artists">
-          <span v-if="index!==0">,</span>
-          {{artist.name}}
-        </span>
+        <a href="#">
+          <span v-for="(artist,index) in track.artists" @click="goToArtist(artist.id)">
+            <span v-if="index!==0">,</span>
+            {{artist.name}}
+          </span>
+        </a>
+      </div>
+      <div class="media-album" v-if="viewFull" @click="goToAlbum(track.album.id)">
+        <a href="#">{{track.album.name}}</a>
       </div>
       <div class="media-time">{{InstoreTime(track.time)}}</div>
       <div class="media-controls">
@@ -42,6 +51,10 @@ import { mapState } from "vuex";
 export default {
   props: {
     shortFlag: {
+      type: Boolean,
+      default: false
+    },
+    viewFull: {
       type: Boolean,
       default: false
     }
@@ -70,6 +83,14 @@ export default {
     },
     changeIndex(index) {
       this.activeIndex = index;
+    },
+    goToAlbum(id) {
+      this.$router.push({ path: "/album", query: { id } });
+    },
+    goToArtist(id) {
+      this.$router.push({ path: "/artist", query: { id } }).catch(err => {
+        console.log(err);
+      });
     }
   }
 };
@@ -84,6 +105,7 @@ export default {
   overflow: hidden;
   height: 48px;
   width: 100%;
+
   &:hover {
     background-color: rgba(246, 245, 255, 0.1);
     outline: 0;
@@ -95,10 +117,18 @@ export default {
       }
       .text {
         display: none;
+        &.active {
+          display: inline-block;
+          img {
+            opacity: 0.5;
+          }
+        }
       }
     }
   }
   &.header {
+    align-items: center;
+    justify-content: center;
     div {
       text-transform: uppercase;
       font-size: 12px;
@@ -113,19 +143,26 @@ export default {
     outline: 0;
   }
   .media-index {
-    display: flex;
     position: relative;
-    justify-content: center;
-    align-items: center;
+    text-align: center;
+    line-height: 48px;
     flex: 0 0 42px;
-    width: 28px;
     color: #79777f;
     font-size: 14px;
     @include ellipsis;
     .text {
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      position: absolute;
+      left: 0;
+      top: 0;
+      z-index: -1;
+      text-align: center;
+      width: 100%;
+      height: 100%;
+      vertical-align: middle;
+      img {
+        width: 42px;
+        height: 42px;
+      }
     }
     .play {
       display: none;
@@ -142,29 +179,43 @@ export default {
     }
   }
   .media-title {
-    display: flex;
-    align-items: center;
     flex: 1 0 228px;
     font-size: 14px;
     padding-right: 16px;
+    padding-left: 12px;
+
+    line-height: 48px;
     @include ellipsis;
   }
   .media-artist {
-    display: flex;
-    align-items: center;
     flex: 1 1 170px;
     padding-right: 16px;
     font-size: 14px;
+    line-height: 48px;
     @include ellipsis;
+    a {
+      color: #fff;
+    }
   }
-  .media-time {
-    max-width: 77px;
-    flex: 1 1 66px;
-    display: flex;
-    text-align: right;
-    align-items: center;
+  .media-album {
+    flex: 1 1 112px;
     padding-right: 16px;
     font-size: 14px;
+    line-height: 48px;
+
+    @include ellipsis;
+    a {
+      color: #fff;
+    }
+  }
+  .media-time {
+    flex: 1 1 66px;
+    max-width: 77px;
+    text-align: right;
+    padding-right: 16px;
+    font-size: 14px;
+    line-height: 48px;
+
     @include ellipsis;
   }
 

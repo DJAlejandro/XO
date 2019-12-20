@@ -26,7 +26,8 @@ export default {
     scrollTop() {
       this.$refs.content.scrollTop = 0;
     }
-  }
+  },
+  mounted() {}
 };
 </script>
 

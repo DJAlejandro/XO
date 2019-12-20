@@ -2,7 +2,7 @@
   <div class="top-tracks">
     <v-header></v-header>
     <div class="top-tracks-container">
-      <trackList></trackList>
+      <trackList :viewFull="viewFull"></trackList>
     </div>
   </div>
 </template>
@@ -14,6 +14,11 @@ export default {
   components: {
     VHeader,
     TrackList
+  },
+  data() {
+    return {
+      viewFull: true
+    };
   }
 };
 </script>

@@ -27,11 +27,14 @@ export default {
 @import "~style/index.scss";
 @import "~style/mixin.scss";
 .content-header {
-  position: absolute;
-  left: 0;
+  position: fixed;
+  left: 248px;
+  right: 20px;
+  top: 0;
   padding: 18px 24px 0;
-  width: 100%;
+  background-color: #000;
   height: 72px;
+  z-index: 2;
   .header-container {
     display: flex;
     align-items: center;
