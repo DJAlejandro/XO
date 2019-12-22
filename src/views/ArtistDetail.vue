@@ -419,6 +419,16 @@ export default {
       margin-left: 22px;
       animation: fadein 0.2s forwards;
     }
+
+    @keyframes fadein {
+      0% {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
   }
 }
 .media-container {
