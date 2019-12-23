@@ -107,8 +107,12 @@ export default {
   },
   methods: {
     ...mapActions(["setTrackListActions"]),
+    ...mapActions(["setViewFullActions"]),
+
     goToTracks() {
       let id = this.$route.query.id;
+      this.setViewFullActions(true);
+
       this.$router
         .push({ path: "/top-tracks", query: { id } })
         .catch(err => {});

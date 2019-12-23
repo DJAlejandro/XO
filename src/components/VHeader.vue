@@ -6,17 +6,23 @@
         <span class="icon-forward iconfont"></span>
       </div>
       <div class="header-content">{{tag}}</div>
-      <div class="header-search">
+      <div class="header-search" @click.stop>
         <span class="icon-search iconfont"></span>
-        <input type="search" placeholder="Search" v-model="result" @keyup="search" />
-        <div class="search-box">
+        <input
+          type="search"
+          placeholder="Search"
+          v-model="result"
+          @keyup="search"
+          @click="openSearch"
+        />
+        <div class="search-box" v-show="Object.keys(searchList).length!==0 ">
           <section>
             <div class="search-box-header">
               <span class="search-box-title">Tracks</span>
-              <span class="search-box-all">Show All</span>
+              <span class="search-box-all" @click="goToTracks()">Show All</span>
             </div>
-            <div class="search-box-content" v-if="Object.keys(searchList).length!==0 ">
-              <div class="search-box-item" v-for="song in searchList.song.songs">
+            <div class="search-box-content">
+              <div class="search-box-item" v-for="song in searchList.songs">
                 <div class="image">
                   <img :src="song.al.picUrl+'?param=50y50'" alt />
                 </div>
@@ -24,7 +30,74 @@
                   <div class="title">{{song.name}}</div>
                   <div class="sub-title">
                     Track By
-                    <span v-for="artist in song.ar">{{artist.name}}</span>
+                    <span v-for="(artist,index) in song.ar">
+                      <span v-if="index!==0">,</span>
+                      {{artist.name}}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section>
+            <div class="search-box-header">
+              <span class="search-box-title">Artists</span>
+              <span class="search-box-all">Show All</span>
+            </div>
+            <div class="search-box-content" v-if="Object.keys(searchList).length!==0 ">
+              <div class="search-box-item" v-for="artist in searchList.artists">
+                <div class="image artist">
+                  <img :src="artist.picUrl+'?param=50y50'" v-if="artist.picUrl" />
+                  <div v-else>{{artist.name | subName}}</div>
+                </div>
+                <div class="search-box-title-group">
+                  <div class="title">{{artist.name}}</div>
+                  <div class="sub-title">Artist</div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section>
+            <div class="search-box-header">
+              <span class="search-box-title">Albums</span>
+              <span class="search-box-all">Show All</span>
+            </div>
+            <div class="search-box-content" v-if="Object.keys(searchList).length!==0 ">
+              <div class="search-box-item" v-for="album in searchList.albums">
+                <div class="image">
+                  <img :src="album.picUrl+'?param=50y50'" alt />
+                </div>
+                <div class="search-box-title-group">
+                  <div class="title">{{album.name}}</div>
+                  <div class="sub-title">
+                    Album By
+                    <span v-for="(artist,index) in album.artists">
+                      <span v-if="index!==0">,</span>
+                      {{artist.name}}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section>
+            <div class="search-box-header">
+              <span class="search-box-title">PlayLists</span>
+              <span class="search-box-all">Show All</span>
+            </div>
+            <div class="search-box-content" v-if="Object.keys(searchList).length!==0 ">
+              <div class="search-box-item" v-for="playList in searchList.playLists">
+                <div class="image">
+                  <img :src="playList.coverImgUrl+'?param=50y50'" alt />
+                </div>
+                <div class="search-box-title-group">
+                  <div class="title">{{playList.name}}</div>
+                  <div class="sub-title">
+                    PlayList By
+                    {{playList.creator.nickname}}
                   </div>
                 </div>
               </div>
@@ -38,6 +111,7 @@
 
 <script>
 import axios from "axios";
+import { mapActions, mapState } from "vuex";
 
 let instance = axios.create({
   baseURL: "http://localhost:3000",
@@ -48,25 +122,106 @@ export default {
   props: ["tag"],
   data() {
     return {
-      result: "",
-      searchList: {}
+      result: ""
+      // searchList: {}
     };
   },
-  methods: {
-    search() {
-      instance
-        .get("/search", {
-          params: {
-            keywords: this.result,
-            type: 1018
-          }
-        })
-        .then(res => {
-          //获取歌手单曲
+  computed: {
+    ...mapState({
+      // 箭头函数可使代码更简练
+      searchList: "searchList"
+    })
+  },
+  filters: {
+    subName: function(value) {
+      if (!value) return "";
+      let value2 = value.split(" ")[1];
+      if (!value2) return value.charAt(0).toUpperCase();
 
-          console.log(res);
-          this.searchList = res.data.result;
-        });
+      return value.charAt(0).toUpperCase() + value2.charAt(0).toUpperCase();
+    }
+  },
+  methods: {
+    ...mapActions(["setViewFullActions"]),
+    ...mapActions(["setTrackListActions"]),
+    ...mapActions(["setSearchListActions"]),
+
+    openSearch() {
+      console.log(this.searchList);
+      if (Object.keys(this.searchList).length !== 0) {
+        console.log(2);
+
+        // document.querySelector(".search-box").style.display = "flex";
+      }
+    },
+    goToTracks() {
+      if (this.result) {
+        instance
+          .get("/search", {
+            params: {
+              keywords: this.result,
+              type: 1,
+              limit: 100
+            }
+          })
+          .then(res => {
+            //获取歌手单曲
+
+            // this.searchList = res.data.result.songs;
+            let tracks = [];
+            res.data.result.songs.forEach(item => {
+              let { duration, name, id, artists, album } = item;
+              tracks.push({
+                time: duration,
+                name,
+                artists,
+                album: album,
+                id
+              });
+            });
+            this.setTrackListActions(tracks);
+            this.setViewFullActions(false);
+          });
+      }
+      let id = this.$route.query.id;
+      this.$router
+        .push({ path: "/search/tracks", query: { q: this.result } })
+        .catch(err => {});
+      document.querySelector(".search-box").style.display = "none";
+    },
+    search() {
+      if (this.result) {
+        instance
+          .get("/search", {
+            params: {
+              keywords: this.result,
+              type: 1018,
+              limit: 10
+            }
+          })
+          .then(res => {
+            //获取歌手单曲
+
+            // console.log(res);
+            // this.searchList = res.data.result;
+            let {
+              song: { songs },
+              playList: { playLists },
+              artist: { artists },
+              album: { albums }
+            } = res.data.result;
+            songs = songs.slice(0, 3);
+            playLists = playLists.slice(0, 3);
+            artists = artists.slice(0, 3);
+            albums = albums.slice(0, 3);
+            this.setSearchListActions({
+              songs,
+              playLists,
+              artists,
+              albums
+            });
+          });
+      }
     }
   }
 };
@@ -183,9 +338,22 @@ export default {
               cursor: pointer;
               padding: 2px 16px;
               .image {
+                display: flex;
                 flex: 0 0 42px;
                 width: 42px;
                 height: 42px;
+                align-items: center;
+                justify-content: center;
+                background-color: #4c4e54;
+                color: #a7aeba;
+                font-size: 16px;
+                font-weight: 700;
+                &.artist {
+                  border-radius: 100%;
+                  img {
+                    border-radius: 100%;
+                  }
+                }
                 img {
                   width: 100%;
                   height: 100%;

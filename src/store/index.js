@@ -6,7 +6,9 @@ Vue.use(Vuex)
 export default new Vuex.Store({
     state: {
         userCookie: "",
-        trackList: []
+        trackList: [],
+        viewFull: true,
+        searchList: {}
     },
     mutations: {
         setCookie(state, data) {
@@ -14,6 +16,12 @@ export default new Vuex.Store({
         },
         setTrackList(state, data) {
             state.trackList = data
+        },
+        setViewFull(state, data) {
+            state.viewFull = data
+        },
+        setSearchList(state, data) {
+            state.searchList = data
         }
     },
     actions: {
@@ -32,7 +40,23 @@ export default new Vuex.Store({
                     resolve()
                 }, 1000)
             })
-        }
+        },
+        setViewFullActions(context, data) {
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    context.commit('setViewFull', data)
+                    resolve()
+                }, 1000)
+            })
+        },
+        setSearchListActions(context, data) {
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    context.commit('setSearchList', data)
+                    resolve()
+                }, 1000)
+            })
+        },
     },
     modules: {}
 })

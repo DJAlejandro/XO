@@ -36,6 +36,10 @@ const routes = [{
     {
         path: '/top-tracks',
         component: () => import( /* Explore */ '../views/TopTracks.vue')
+    },
+    {
+        path: '/search/tracks',
+        component: () => import( /* Explore */ '../views/TopTracks.vue')
     }
 ]
 

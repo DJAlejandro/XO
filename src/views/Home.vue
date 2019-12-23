@@ -172,9 +172,7 @@ export default {
       userCookie: "userCookie"
     })
   },
-  mounted() {
-    console.log(this.userCookie);
-  }
+  mounted() {}
 };
 </script>
 

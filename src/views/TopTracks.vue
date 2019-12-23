@@ -9,6 +9,7 @@
 <script>
 import TrackList from "./TrackList.vue";
 import VHeader from "components/VHeader.vue";
+import { mapState } from "vuex";
 
 export default {
   components: {
@@ -16,9 +17,13 @@ export default {
     TrackList
   },
   data() {
-    return {
-      viewFull: true
-    };
+    return {};
+  },
+  computed: {
+    ...mapState({
+      // 箭头函数可使代码更简练
+      viewFull: "viewFull"
+    })
   }
 };
 </script>

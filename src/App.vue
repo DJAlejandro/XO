@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <side-bar />
-    <div class="content-area">
+    <div class="content-area" @click="closeSearch">
       <div class="content-area-scorll" ref="content">
         <router-view @scroll-top="scrollTop"></router-view>
       </div>
@@ -13,6 +13,8 @@
 <script>
 import SideBar from "./views/SideBar.vue";
 import Home from "./views/Home.vue";
+import { mapActions, mapState } from "vuex";
+
 export default {
   data() {
     return {
@@ -23,8 +25,14 @@ export default {
     SideBar
   },
   methods: {
+    ...mapActions(["setSearchListActions"]),
+
     scrollTop() {
       this.$refs.content.scrollTop = 0;
+    },
+    closeSearch() {
+      // document.querySelector(".search-box").style.display = "none";
+      this.setSearchListActions({});
     }
   },
   mounted() {}
