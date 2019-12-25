@@ -86,66 +86,76 @@ export default {
     }
   },
   methods: {
-    ...mapActions(["setTrackListActions"])
+    ...mapActions(["setTrackListActions"]),
+    initAlbum() {
+      this.$emit("scroll-top");
+      let id = this.$route.query.id;
+      instance
+        .get("/album", {
+          params: {
+            id
+          }
+        })
+        .then(res => {
+          let data = res.data;
+          let tracks = [];
+          let {
+            album: { blurPicUrl, name, artists, artist, publishTime },
+            songs
+          } = data;
+
+          songs.forEach(item => {
+            let { dt, name, id, ar, al } = item;
+            tracks.push({
+              time: dt,
+              name,
+              artists: ar,
+              id,
+              album: al
+            });
+          });
+
+          this.artist = artist;
+          this.albumList = {
+            src: blurPicUrl, //专辑封面
+            name, //专辑名称
+            artists, //专辑歌手
+            publishTime //发行时间
+          };
+          this.setTrackListActions(tracks);
+          return instance.get("/simi/artist", {
+            params: {
+              id: this.artist.id
+            }
+          });
+        })
+        .then(res => {
+          let artists = [];
+          res.data.artists.forEach(function(item) {
+            let { id, img1v1Url, name } = item;
+            artists.push({
+              id,
+              name,
+              src: img1v1Url
+            });
+          });
+
+          this.artistsList = {
+            title: "Related Artists",
+            data: artists
+          };
+        });
+    }
   },
 
   mounted() {
-    this.$emit("scroll-top");
-    let id = this.$route.query.id;
-    instance
-      .get("/album", {
-        params: {
-          id
-        }
-      })
-      .then(res => {
-        let data = res.data;
-        let tracks = [];
-        let {
-          album: { blurPicUrl, name, artists, artist, publishTime },
-          songs
-        } = data;
-
-        songs.forEach(item => {
-          let { dt, name, id, ar } = item;
-          tracks.push({
-            time: dt,
-            name,
-            artists: ar,
-            id
-          });
-        });
-
-        this.artist = artist;
-        this.albumList = {
-          src: blurPicUrl, //专辑封面
-          name, //专辑名称
-          artists, //专辑歌手
-          publishTime //发行时间
-        };
-        this.setTrackListActions(tracks);
-        return instance.get("/simi/artist", {
-          params: {
-            id: this.artist.id
-          }
-        });
-      })
-      .then(res => {
-        let artists = [];
-        res.data.artists.forEach(function(item) {
-          let { id, img1v1Url, name } = item;
-          artists.push({
-            id,
-            name,
-            src: img1v1Url
-          });
-        });
-
-        this.artistsList = {
-          title: "Related Artists",
-          data: artists
-        };
-      });
+    this.initAlbum();
+  },
+  watch: {
+    $route(to, from) {
+      // 对路由变化作出响应...
+      this.initAlbum();
+    }
   }
 };
 </script>

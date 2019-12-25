@@ -13,9 +13,10 @@
       v-for="(track,index) in tracks"
       :class="{active:activeIndex===index}"
       @click="changeIndex(index)"
+      v-if="track!=null"
     >
       <div class="media-index">
-        <div class="text" v-if="viewFull" :class="{active:viewFull}">
+        <div class="text" v-if="viewFull && track.album!=null" :class="{active:viewFull}">
           <img :src="track.album.picUrl+'?param=42y42'" alt="track.name" />
         </div>
         <div class="text" v-else>{{index+1}}</div>
@@ -23,7 +24,7 @@
           <span class="icon-play iconfont"></span>
         </span>
       </div>
-      <div class="media-title">{{track.name}}</div>
+      <div class="media-title" v-if="track.name">{{track.name}}</div>
       <div class="media-artist">
         <a href="#">
           <span v-for="(artist,index) in track.artists" @click="goToArtist(artist.id)">

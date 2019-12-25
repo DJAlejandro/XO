@@ -6,20 +6,23 @@
         <span class="icon-forward iconfont"></span>
       </div>
       <div class="header-content">{{tag}}</div>
-      <div class="header-search" @click.stop>
+      <div class="header-search" @click.stop :class="{focus:focusFlag}">
         <span class="icon-search iconfont"></span>
         <input
           type="search"
           placeholder="Search"
+          class="search-input"
           v-model="result"
-          @keyup="search"
-          @click="openSearch"
+          @keyup="searchTimer"
+          @focus="searchFocus"
         />
-        <div class="search-box" v-show="Object.keys(searchList).length!==0 ">
+        <div class="search-box" v-show=" focusFlag">
           <section>
             <div class="search-box-header">
               <span class="search-box-title">Tracks</span>
-              <span class="search-box-all" @click="goToTracks()">Show All</span>
+              <span class="search-box-all" @click="goToTracks()">
+                <a>Show All</a>
+              </span>
             </div>
             <div class="search-box-content">
               <div class="search-box-item" v-for="song in searchList.songs">
@@ -30,7 +33,10 @@
                   <div class="title">{{song.name}}</div>
                   <div class="sub-title">
                     Track By
-                    <span v-for="(artist,index) in song.ar">
+                    <span
+                      v-for="(artist,index) in song.ar"
+                      @click.stop="goToArtist(artist.id)"
+                    >
                       <span v-if="index!==0">,</span>
                       {{artist.name}}
                     </span>
@@ -43,7 +49,9 @@
           <section>
             <div class="search-box-header">
               <span class="search-box-title">Artists</span>
-              <span class="search-box-all">Show All</span>
+              <span class="search-box-all">
+                <a>Show All</a>
+              </span>
             </div>
             <div class="search-box-content" v-if="Object.keys(searchList).length!==0 ">
               <div class="search-box-item" v-for="artist in searchList.artists">
@@ -52,7 +60,7 @@
                   <div v-else>{{artist.name | subName}}</div>
                 </div>
                 <div class="search-box-title-group">
-                  <div class="title">{{artist.name}}</div>
+                  <div class="title" @click.stop="goToArtist(artist.id)">{{artist.name}}</div>
                   <div class="sub-title">Artist</div>
                 </div>
               </div>
@@ -62,18 +70,23 @@
           <section>
             <div class="search-box-header">
               <span class="search-box-title">Albums</span>
-              <span class="search-box-all">Show All</span>
+              <span class="search-box-all">
+                <a>Show All</a>
+              </span>
             </div>
-            <div class="search-box-content" v-if="Object.keys(searchList).length!==0 ">
+            <div class="search-box-content">
               <div class="search-box-item" v-for="album in searchList.albums">
                 <div class="image">
                   <img :src="album.picUrl+'?param=50y50'" alt />
                 </div>
                 <div class="search-box-title-group">
-                  <div class="title">{{album.name}}</div>
+                  <div class="title" @click.stop="goToAlbum(album.id)">{{album.name}}</div>
                   <div class="sub-title">
                     Album By
-                    <span v-for="(artist,index) in album.artists">
+                    <span
+                      v-for="(artist,index) in album.artists"
+                      @click.stop="goToArtist(artist.id)"
+                    >
                       <span v-if="index!==0">,</span>
                       {{artist.name}}
                     </span>
@@ -86,7 +99,9 @@
           <section>
             <div class="search-box-header">
               <span class="search-box-title">PlayLists</span>
-              <span class="search-box-all">Show All</span>
+              <span class="search-box-all">
+                <a>Show All</a>
+              </span>
             </div>
             <div class="search-box-content" v-if="Object.keys(searchList).length!==0 ">
               <div class="search-box-item" v-for="playList in searchList.playLists">
@@ -123,13 +138,14 @@ export default {
   data() {
     return {
       result: ""
-      // searchList: {}
     };
   },
   computed: {
     ...mapState({
       // 箭头函数可使代码更简练
-      searchList: "searchList"
+      searchList: "searchList",
+      searchResult: "searchResult",
+      focusFlag: "focusFlag"
     })
   },
   filters: {
@@ -145,15 +161,9 @@ export default {
     ...mapActions(["setViewFullActions"]),
     ...mapActions(["setTrackListActions"]),
     ...mapActions(["setSearchListActions"]),
+    ...mapActions(["setSearchResultActions"]),
+    ...mapActions(["setFocusFlagActions"]),
 
-    openSearch() {
-      console.log(this.searchList);
-      if (Object.keys(this.searchList).length !== 0) {
-        console.log(2);
-
-        // document.querySelector(".search-box").style.display = "flex";
-      }
-    },
     goToTracks() {
       if (this.result) {
         instance
@@ -166,8 +176,6 @@ export default {
           })
           .then(res => {
             //获取歌手单曲
-
-            // this.searchList = res.data.result.songs;
             let tracks = [];
             res.data.result.songs.forEach(item => {
               let { duration, name, id, artists, album } = item;
@@ -181,13 +189,20 @@ export default {
             });
             this.setTrackListActions(tracks);
             this.setViewFullActions(false);
+
+            this.$router
+              .push({ path: "/search/tracks", query: { q: this.result } })
+              .catch(err => {});
           });
       }
-      let id = this.$route.query.id;
-      this.$router
-        .push({ path: "/search/tracks", query: { q: this.result } })
-        .catch(err => {});
-      document.querySelector(".search-box").style.display = "none";
+    },
+    searchTimer() {
+      if (this.timer) {
+        clearTimeout(this.timer);
+      }
+      this.timer = setTimeout(() => {
+        this.search();
+      }, 100);
     },
     search() {
       if (this.result) {
@@ -201,9 +216,6 @@ export default {
           })
           .then(res => {
             //获取歌手单曲
-
-            // console.log(res);
-            // this.searchList = res.data.result;
             let {
               song: { songs },
               playList: { playLists },
@@ -221,8 +233,32 @@ export default {
               albums
             });
           });
+      } else {
+        this.setFocusFlagActions(false);
       }
+    },
+    searchFocus() {
+      this.setFocusFlagActions(true);
+    },
+
+    goToAlbum(id) {
+      this.setFocusFlagActions(false);
+      this.$router.push({ path: "/album", query: { id } });
+    },
+    goToArtist(id) {
+      this.setFocusFlagActions(false);
+      this.$router.push({ path: "/artist", query: { id } }).catch(err => {
+        console.log(err);
+      });
     }
+  },
+  watch: {
+    result() {
+      this.setSearchResultActions(this.result);
+    }
+  },
+  mounted() {
+    this.result = this.searchResult;
   }
 };
 </script>
@@ -238,7 +274,7 @@ export default {
   padding: 18px 24px 0;
   background-color: #000;
   height: 72px;
-  z-index: 2;
+  z-index: 3;
   .header-container {
     display: flex;
     align-items: center;
@@ -270,12 +306,20 @@ export default {
       width: 100%;
       max-width: 388px;
       margin-left: auto;
+      &.focus {
+        color: #000;
+        background-color: #fff;
+        .search-input {
+          outline: none;
+          color: #000;
+        }
+      }
       .icon-search {
         width: 24px;
         line-height: 24px;
         font-size: 24px;
       }
-      input {
+      .search-input {
         font-size: 14px;
         height: 36px;
         margin: 0 8px;
@@ -284,6 +328,7 @@ export default {
         flex-grow: 1;
         color: #fff;
         padding: 0;
+        -webkit-appearance: textfield;
       }
       .search-box {
         width: 388px;
@@ -324,9 +369,16 @@ export default {
               margin: 0;
               text-transform: capitalize;
               flex-grow: 1;
+              color: #fff;
             }
             .search-box-all {
-              color: rgba(229, 238, 255, 0.6);
+              a {
+                color: rgba(229, 238, 255, 0.6);
+                cursor: pointer;
+                &:hover {
+                  text-decoration: underline;
+                }
+              }
             }
           }
           .search-box-content {
@@ -367,6 +419,7 @@ export default {
                 overflow: hidden;
                 flex-direction: column;
                 font-size: 14px;
+                color: #fff;
                 .sub-title {
                   color: rgba(229, 238, 255, 0.6);
                 }

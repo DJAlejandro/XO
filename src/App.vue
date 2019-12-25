@@ -26,13 +26,13 @@ export default {
   },
   methods: {
     ...mapActions(["setSearchListActions"]),
+    ...mapActions(["setFocusFlagActions"]),
 
     scrollTop() {
       this.$refs.content.scrollTop = 0;
     },
     closeSearch() {
-      // document.querySelector(".search-box").style.display = "none";
-      this.setSearchListActions({});
+      this.setFocusFlagActions(false);
     }
   },
   mounted() {}

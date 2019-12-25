@@ -8,7 +8,9 @@ export default new Vuex.Store({
         userCookie: "",
         trackList: [],
         viewFull: true,
-        searchList: {}
+        searchList: {},
+        searchResult: "",
+        focusFlag: false
     },
     mutations: {
         setCookie(state, data) {
@@ -22,6 +24,12 @@ export default new Vuex.Store({
         },
         setSearchList(state, data) {
             state.searchList = data
+        },
+        setSearchResult(state, data) {
+            state.searchResult = data
+        },
+        setFocusFlag(state, data) {
+            state.focusFlag = data
         }
     },
     actions: {
@@ -30,7 +38,7 @@ export default new Vuex.Store({
                 setTimeout(() => {
                     context.commit('setCookie', data)
                     resolve()
-                }, 1000)
+                }, 100)
             })
         },
         setTrackListActions(context, data) {
@@ -38,7 +46,7 @@ export default new Vuex.Store({
                 setTimeout(() => {
                     context.commit('setTrackList', data)
                     resolve()
-                }, 1000)
+                }, 100)
             })
         },
         setViewFullActions(context, data) {
@@ -46,7 +54,7 @@ export default new Vuex.Store({
                 setTimeout(() => {
                     context.commit('setViewFull', data)
                     resolve()
-                }, 1000)
+                }, 100)
             })
         },
         setSearchListActions(context, data) {
@@ -54,9 +62,25 @@ export default new Vuex.Store({
                 setTimeout(() => {
                     context.commit('setSearchList', data)
                     resolve()
-                }, 1000)
+                }, 100)
             })
         },
+        setSearchResultActions(context, data) {
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    context.commit('setSearchResult', data)
+                    resolve()
+                }, 100)
+            })
+        },
+        setFocusFlagActions(context, data) {
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    context.commit('setFocusFlag', data)
+                    resolve()
+                }, 100)
+            })
+        }
     },
     modules: {}
 })

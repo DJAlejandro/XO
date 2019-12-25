@@ -121,10 +121,10 @@ export default {
       let arr = [];
       data.forEach(function(item) {
         tag ? (item = item.album) : (item = item);
-        let { blurPicUrl, name, type, artists, id } = item;
+        let { picUrl, name, type, artists, id } = item;
 
         arr.push({
-          src: blurPicUrl,
+          src: picUrl,
           title: name,
           artists,
           type,
@@ -158,8 +158,6 @@ export default {
         })
         .then(res => {
           //获取歌手单曲
-
-          console.log(res);
 
           let tracks = [];
           res.data.hotSongs.forEach(item => {
