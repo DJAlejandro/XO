@@ -10,7 +10,8 @@ export default new Vuex.Store({
         viewFull: true,
         searchList: {},
         searchResult: "",
-        focusFlag: false
+        focusFlag: false,
+        categoryList: [{}]
     },
     mutations: {
         setCookie(state, data) {
@@ -30,6 +31,9 @@ export default new Vuex.Store({
         },
         setFocusFlag(state, data) {
             state.focusFlag = data
+        },
+        setCategoryList(state, data) {
+            state.categoryList = data
         }
     },
     actions: {
@@ -77,6 +81,14 @@ export default new Vuex.Store({
             return new Promise((resolve, reject) => {
                 setTimeout(() => {
                     context.commit('setFocusFlag', data)
+                    resolve()
+                }, 100)
+            })
+        },
+        setCategoryListActions(context, data) {
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    context.commit('setCategoryList', data)
                     resolve()
                 }, 100)
             })

@@ -16,8 +16,8 @@
           @keyup="searchTimer"
           @focus="searchFocus"
         />
-        <div class="search-box" v-show=" focusFlag">
-          <section>
+        <div class="search-box" v-if="resLength &&  focusFlag">
+          <section v-if="searchList.songs">
             <div class="search-box-header">
               <span class="search-box-title">Tracks</span>
               <span class="search-box-all" @click="goToTracks()">
@@ -46,14 +46,14 @@
             </div>
           </section>
 
-          <section>
+          <section v-if="searchList.artists">
             <div class="search-box-header">
               <span class="search-box-title">Artists</span>
               <span class="search-box-all">
-                <a>Show All</a>
+                <a @click="searchArtists">Show All</a>
               </span>
             </div>
-            <div class="search-box-content" v-if="Object.keys(searchList).length!==0 ">
+            <div class="search-box-content">
               <div class="search-box-item" v-for="artist in searchList.artists">
                 <div class="image artist">
                   <img :src="artist.picUrl+'?param=50y50'" v-if="artist.picUrl" />
@@ -67,11 +67,11 @@
             </div>
           </section>
 
-          <section>
+          <section v-if="searchList.albums">
             <div class="search-box-header">
               <span class="search-box-title">Albums</span>
               <span class="search-box-all">
-                <a>Show All</a>
+                <a @click="searchAlbums">Show All</a>
               </span>
             </div>
             <div class="search-box-content">
@@ -96,14 +96,14 @@
             </div>
           </section>
 
-          <section>
+          <section v-if="searchList.playLists">
             <div class="search-box-header">
               <span class="search-box-title">PlayLists</span>
               <span class="search-box-all">
-                <a>Show All</a>
+                <a @click="searchPlayLists">Show All</a>
               </span>
             </div>
-            <div class="search-box-content" v-if="Object.keys(searchList).length!==0 ">
+            <div class="search-box-content">
               <div class="search-box-item" v-for="playList in searchList.playLists">
                 <div class="image">
                   <img :src="playList.coverImgUrl+'?param=50y50'" alt />
@@ -137,7 +137,8 @@ export default {
   props: ["tag"],
   data() {
     return {
-      result: ""
+      result: "",
+      resLength: 0
     };
   },
   computed: {
@@ -163,6 +164,7 @@ export default {
     ...mapActions(["setSearchListActions"]),
     ...mapActions(["setSearchResultActions"]),
     ...mapActions(["setFocusFlagActions"]),
+    ...mapActions(["setCategoryListActions"]),
 
     goToTracks() {
       if (this.result) {
@@ -210,12 +212,12 @@ export default {
           .get("/search", {
             params: {
               keywords: this.result,
-              type: 1018,
-              limit: 10
+              type: 1018
             }
           })
           .then(res => {
             //获取歌手单曲
+            this.resLength = res.data.result.order.length;
             let {
               song: { songs },
               playList: { playLists },
@@ -240,7 +242,120 @@ export default {
     searchFocus() {
       this.setFocusFlagActions(true);
     },
+    searchAlbums() {
+      if (this.result) {
+        instance
+          .get("/search", {
+            params: {
+              keywords: this.result,
+              type: 10,
+              limit: 100
+            }
+          })
+          .then(res => {
+            //获取歌手单曲
+            this.$router
+              .push({ path: "/search/albums", query: { q: this.result } })
+              .catch(err => {});
+            console.log(res.data.result.albums);
+            let playLists = [];
+            res.data.result.albums.forEach(function(item) {
+              let {
+                name: title,
+                id,
+                picUrl,
+                artist: { name }
+              } = item;
+              playLists.push({
+                title,
+                id,
+                src: picUrl,
+                desc: name
+              });
+            });
+            this.setCategoryListActions({
+              type: "album",
+              playLists
+            });
+          });
+      }
+    },
+    searchPlayLists() {
+      if (this.result) {
+        instance
+          .get("/search", {
+            params: {
+              keywords: this.result,
+              type: 1000,
+              limit: 100
+            }
+          })
+          .then(res => {
+            //获取歌手单曲
+            console.log(res);
 
+            this.$router
+              .push({ path: "/search/play-list", query: { q: this.result } })
+              .catch(err => {});
+            let playLists = [];
+            res.data.result.playlists.forEach(function(item) {
+              let {
+                name: title,
+                id,
+                coverImgUrl,
+                creator: { nickname }
+              } = item;
+              playLists.push({
+                title,
+                id,
+                src: coverImgUrl,
+                desc: nickname
+              });
+            });
+            this.setCategoryListActions({
+              type: "play-list",
+              playLists
+            });
+          });
+      }
+    },
+    searchArtists() {
+      if (this.result) {
+        instance
+          .get("/search", {
+            params: {
+              keywords: this.result,
+              type: 100,
+              limit: 100
+            }
+          })
+          .then(res => {
+            //获取歌手单曲
+            console.log(res);
+
+            this.$router
+              .push({ path: "/search/artist", query: { q: this.result } })
+              .catch(err => {});
+            let playLists = [];
+            res.data.result.artists.forEach(function(item) {
+              let {
+                name: title,
+                id,
+                picUrl
+              } = item;
+              playLists.push({
+                title,
+                id,
+                src: picUrl
+              });
+            });
+            this.setCategoryListActions({
+              type: "artist",
+              playLists
+            });
+          });
+      }
+    },
     goToAlbum(id) {
       this.setFocusFlagActions(false);
       this.$router.push({ path: "/album", query: { id } });

@@ -97,6 +97,8 @@ export default {
             });
           });
 
+          console.log(arr);
+
           this.playlists = arr;
         });
     }
