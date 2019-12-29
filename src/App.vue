@@ -1,7 +1,7 @@
 <template>
-  <div id="app">
+  <div id="app" @click="closeSearch">
     <side-bar />
-    <div class="content-area" @click="closeSearch">
+    <div class="content-area">
       <div class="content-area-scorll" ref="content">
         <router-view @scroll-top="scrollTop"></router-view>
       </div>

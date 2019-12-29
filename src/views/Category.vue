@@ -12,10 +12,14 @@
             <div v-else class="sub-name">{{playlist.title | subName}}</div>
           </div>
           <div class="category-item-content">
-            <span class="category-item-content-text">
+            <span class="category-item-content-text" @click="goToTitle(playlist.id)">
               <a>{{playlist.title}}</a>
             </span>
-            <span class="category-item-content-text" v-if="type!==3">
+            <span
+              class="category-item-content-text"
+              v-if="type!==3"
+              @click="goToDesc(playlist.subId)"
+            >
               <span class="category-last" v-if="type===2">Created By &nbsp;</span>
               <a class="category-last">{{playlist.desc}}</a>
             </span>
@@ -58,12 +62,39 @@ export default {
   },
   methods: {
     goToAlbum(id) {
-      this.$router.push({ path: "/album", query: { id } });
+      this.$router.push({ path: "/album", query: { id } }).catch(err => {
+        console.log(err);
+      });
     },
     goToArtist(id) {
       this.$router.push({ path: "/artist", query: { id } }).catch(err => {
         console.log(err);
       });
+    },
+    goToTitle(id) {
+      switch (this.type) {
+        case 1:
+          this.goToAlbum(id);
+          break;
+        case 2:
+          break;
+        case 3:
+          this.goToArtist(id);
+          break;
+        default:
+          break;
+      }
+    },
+    goToDesc(id) {
+      switch (this.type) {
+        case 1:
+          this.goToArtist(id);
+          break;
+        case 2:
+          break;
+        default:
+          break;
+      }
     }
   },
   computed: {

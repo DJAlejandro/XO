@@ -13,7 +13,7 @@ module.exports = {
     indexPath: path.resolve(__dirname, './docs/index.html'), //之前是'../dist/index.html'
     outputDir: path.resolve(__dirname, './docs'), // 之前是 '../dist'
     assetsDir: 'static',
-    publicPath: './', // 之前是 '/'
+    publicPath: '/', // 之前是 '/'
 
     devServer: {
         // proxy: {

@@ -6,7 +6,7 @@
         <span class="icon-forward iconfont"></span>
       </div>
       <div class="header-content">{{tag}}</div>
-      <div class="header-search" @click.stop :class="{focus:focusFlag}">
+      <div class="header-search" @click.stop :class="{focus:focusOnly}">
         <span class="icon-search iconfont"></span>
         <input
           type="search"
@@ -15,9 +15,10 @@
           v-model="result"
           @keyup="searchTimer"
           @focus="searchFocus"
+          @click="searchClick"
         />
-        <div class="search-box" v-if="resLength &&  focusFlag">
-          <section v-if="searchList.songs">
+        <div class="search-box" v-if=" focusFlag ">
+          <section v-if="searchList.songs.length>0">
             <div class="search-box-header">
               <span class="search-box-title">Tracks</span>
               <span class="search-box-all" @click="goToTracks()">
@@ -38,7 +39,7 @@
                       @click.stop="goToArtist(artist.id)"
                     >
                       <span v-if="index!==0">,</span>
-                      {{artist.name}}
+                      <a>{{artist.name}}</a>
                     </span>
                   </div>
                 </div>
@@ -46,7 +47,7 @@
             </div>
           </section>
 
-          <section v-if="searchList.artists">
+          <section v-if="searchList.artists.length>0">
             <div class="search-box-header">
               <span class="search-box-title">Artists</span>
               <span class="search-box-all">
@@ -60,14 +61,16 @@
                   <div v-else>{{artist.name | subName}}</div>
                 </div>
                 <div class="search-box-title-group">
-                  <div class="title" @click.stop="goToArtist(artist.id)">{{artist.name}}</div>
+                  <div class="title" @click.stop="goToArtist(artist.id)">
+                    <a>{{artist.name}}</a>
+                  </div>
                   <div class="sub-title">Artist</div>
                 </div>
               </div>
             </div>
           </section>
 
-          <section v-if="searchList.albums">
+          <section v-if="searchList.albums.length>0">
             <div class="search-box-header">
               <span class="search-box-title">Albums</span>
               <span class="search-box-all">
@@ -80,7 +83,9 @@
                   <img :src="album.picUrl+'?param=50y50'" alt />
                 </div>
                 <div class="search-box-title-group">
-                  <div class="title" @click.stop="goToAlbum(album.id)">{{album.name}}</div>
+                  <div class="title" @click.stop="goToAlbum(album.id)">
+                    <a>{{album.name}}</a>
+                  </div>
                   <div class="sub-title">
                     Album By
                     <span
@@ -88,7 +93,7 @@
                       @click.stop="goToArtist(artist.id)"
                     >
                       <span v-if="index!==0">,</span>
-                      {{artist.name}}
+                      <a>{{artist.name}}</a>
                     </span>
                   </div>
                 </div>
@@ -96,7 +101,7 @@
             </div>
           </section>
 
-          <section v-if="searchList.playLists">
+          <section v-if="searchList.playLists.length>0">
             <div class="search-box-header">
               <span class="search-box-title">PlayLists</span>
               <span class="search-box-all">
@@ -109,7 +114,9 @@
                   <img :src="playList.coverImgUrl+'?param=50y50'" alt />
                 </div>
                 <div class="search-box-title-group">
-                  <div class="title">{{playList.name}}</div>
+                  <div class="title">
+                    <a>{{playList.name}}</a>
+                  </div>
                   <div class="sub-title">
                     PlayList By
                     {{playList.creator.nickname}}
@@ -138,7 +145,8 @@ export default {
   data() {
     return {
       result: "",
-      resLength: 0
+      resLength: 0,
+      focusOnly: false
     };
   },
   computed: {
@@ -191,6 +199,7 @@ export default {
             });
             this.setTrackListActions(tracks);
             this.setViewFullActions(false);
+            this.setFocusFlagActions(false);
 
             this.$router
               .push({ path: "/search/tracks", query: { q: this.result } })
@@ -217,30 +226,41 @@ export default {
           })
           .then(res => {
             //获取歌手单曲
-            this.resLength = res.data.result.order.length;
-            let {
-              song: { songs },
-              playList: { playLists },
-              artist: { artists },
-              album: { albums }
-            } = res.data.result;
-            songs = songs.slice(0, 3);
-            playLists = playLists.slice(0, 3);
-            artists = artists.slice(0, 3);
-            albums = albums.slice(0, 3);
-            this.setSearchListActions({
-              songs,
-              playLists,
-              artists,
-              albums
-            });
+            let resLength = res.data.result.order.length;
+            if (resLength > 0) {
+              let {
+                song: { songs: songs = [] } = {},
+                playList: { playLists: playLists = [] } = {},
+                artist: { artists: artists = [] } = {},
+                album: { albums: albums = [] } = {}
+              } = res.data.result;
+
+              songs = songs.slice(0, 3);
+              playLists = playLists.slice(0, 3);
+              artists = artists.slice(0, 3);
+              albums = albums.slice(0, 3);
+              this.setSearchListActions({
+                songs,
+                playLists,
+                artists,
+                albums
+              });
+              this.setFocusFlagActions(true);
+            } else {
+              this.setFocusFlagActions(false);
+            }
           });
       } else {
         this.setFocusFlagActions(false);
       }
     },
     searchFocus() {
-      this.setFocusFlagActions(true);
+      this.focusOnly = true;
+      if (this.result) {
+        this.setFocusFlagActions(true);
+      } else {
+        this.setFocusFlagActions(false);
+      }
     },
     searchAlbums() {
       if (this.result) {
@@ -257,20 +277,20 @@ export default {
             this.$router
               .push({ path: "/search/albums", query: { q: this.result } })
               .catch(err => {});
-            console.log(res.data.result.albums);
             let playLists = [];
             res.data.result.albums.forEach(function(item) {
               let {
                 name: title,
                 id,
                 picUrl,
-                artist: { name }
+                artist: { name, id: subId }
               } = item;
               playLists.push({
                 title,
                 id,
                 src: picUrl,
-                desc: name
+                desc: name,
+                subId
               });
             });
             this.setCategoryListActions({
@@ -292,7 +312,6 @@ export default {
           })
           .then(res => {
             //获取歌手单曲
-            console.log(res);
 
             this.$router
               .push({ path: "/search/play-list", query: { q: this.result } })
@@ -331,18 +350,12 @@ export default {
           })
           .then(res => {
             //获取歌手单曲
-            console.log(res);
-
             this.$router
               .push({ path: "/search/artist", query: { q: this.result } })
               .catch(err => {});
             let playLists = [];
             res.data.result.artists.forEach(function(item) {
-              let {
-                name: title,
-                id,
-                picUrl
-              } = item;
+              let { name: title, id, picUrl } = item;
               playLists.push({
                 title,
                 id,
@@ -365,6 +378,15 @@ export default {
       this.$router.push({ path: "/artist", query: { id } }).catch(err => {
         console.log(err);
       });
+    },
+    searchClick() {
+      setTimeout(() => {
+        if (this.result) {
+          this.setFocusFlagActions(true);
+        } else {
+          this.setFocusFlagActions(false);
+        }
+      }, 30);
     }
   },
   watch: {
@@ -535,8 +557,14 @@ export default {
                 flex-direction: column;
                 font-size: 14px;
                 color: #fff;
+                .title a {
+                  color: #fff;
+                }
                 .sub-title {
                   color: rgba(229, 238, 255, 0.6);
+                  a {
+                    color: rgba(229, 238, 255, 0.6);
+                  }
                 }
               }
             }
