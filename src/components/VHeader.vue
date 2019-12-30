@@ -15,116 +15,125 @@
           v-model="result"
           @keyup="searchTimer"
           @focus="searchFocus"
-          @click="searchClick"
         />
+        <span class="icon-remove iconfont" @click="clearSearch"></span>
         <div class="search-box" v-if=" focusFlag ">
-          <section v-if="searchList.songs.length>0">
-            <div class="search-box-header">
-              <span class="search-box-title">Tracks</span>
-              <span class="search-box-all" @click="goToTracks()">
-                <a>Show All</a>
-              </span>
-            </div>
-            <div class="search-box-content">
-              <div class="search-box-item" v-for="song in searchList.songs">
-                <div class="image">
-                  <img :src="song.al.picUrl+'?param=50y50'" alt />
+          <div v-if="resLength>1">
+            <section v-if="searchList!=null">
+              <div class="search-box-header">
+                <span class="search-box-title">Tracks</span>
+                <span class="search-box-all" @click="goToTracks()">
+                  <a>Show All</a>
+                </span>
+              </div>
+              <div class="search-box-content">
+                <div class="search-box-item" v-for="song in searchList.songs">
+                  <div class="image">
+                    <img :src="song.al.picUrl+'?param=50y50'" alt />
+                  </div>
+                  <div class="search-box-title-group">
+                    <div class="title">{{song.name}}</div>
+                    <div class="sub-title">
+                      Track By
+                      <span
+                        v-for="(artist,index) in song.ar"
+                        @click.stop="goToArtist(artist.id)"
+                      >
+                        <span v-if="index!==0">,</span>
+                        <a>{{artist.name}}</a>
+                      </span>
+                    </div>
+                  </div>
                 </div>
-                <div class="search-box-title-group">
-                  <div class="title">{{song.name}}</div>
-                  <div class="sub-title">
-                    Track By
-                    <span
-                      v-for="(artist,index) in song.ar"
-                      @click.stop="goToArtist(artist.id)"
-                    >
-                      <span v-if="index!==0">,</span>
+              </div>
+            </section>
+
+            <section v-if="searchList!=null">
+              <div class="search-box-header">
+                <span class="search-box-title">Artists</span>
+                <span class="search-box-all">
+                  <a @click="searchArtists">Show All</a>
+                </span>
+              </div>
+              <div class="search-box-content">
+                <div class="search-box-item" v-for="artist in searchList.artists">
+                  <div class="image artist">
+                    <img :src="artist.picUrl+'?param=50y50'" v-if="artist.picUrl" />
+                    <div v-else>{{artist.name | subName}}</div>
+                  </div>
+                  <div class="search-box-title-group">
+                    <div class="title" @click.stop="goToArtist(artist.id)">
                       <a>{{artist.name}}</a>
-                    </span>
+                    </div>
+                    <div class="sub-title">Artist</div>
                   </div>
                 </div>
               </div>
-            </div>
-          </section>
+            </section>
 
-          <section v-if="searchList.artists.length>0">
-            <div class="search-box-header">
-              <span class="search-box-title">Artists</span>
-              <span class="search-box-all">
-                <a @click="searchArtists">Show All</a>
-              </span>
-            </div>
-            <div class="search-box-content">
-              <div class="search-box-item" v-for="artist in searchList.artists">
-                <div class="image artist">
-                  <img :src="artist.picUrl+'?param=50y50'" v-if="artist.picUrl" />
-                  <div v-else>{{artist.name | subName}}</div>
-                </div>
-                <div class="search-box-title-group">
-                  <div class="title" @click.stop="goToArtist(artist.id)">
-                    <a>{{artist.name}}</a>
+            <section v-if="searchList!=null">
+              <div class="search-box-header">
+                <span class="search-box-title">Albums</span>
+                <span class="search-box-all">
+                  <a @click="searchAlbums">Show All</a>
+                </span>
+              </div>
+              <div class="search-box-content">
+                <div class="search-box-item" v-for="album in searchList.albums">
+                  <div class="image">
+                    <img :src="album.picUrl+'?param=50y50'" alt />
                   </div>
-                  <div class="sub-title">Artist</div>
+                  <div class="search-box-title-group">
+                    <div class="title" @click.stop="goToAlbum(album.id)">
+                      <a>{{album.name}}</a>
+                    </div>
+                    <div class="sub-title">
+                      Album By
+                      <span
+                        v-for="(artist,index) in album.artists"
+                        @click.stop="goToArtist(artist.id)"
+                      >
+                        <span v-if="index!==0">,</span>
+                        <a>{{artist.name}}</a>
+                      </span>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          </section>
+            </section>
 
-          <section v-if="searchList.albums.length>0">
-            <div class="search-box-header">
-              <span class="search-box-title">Albums</span>
-              <span class="search-box-all">
-                <a @click="searchAlbums">Show All</a>
-              </span>
-            </div>
-            <div class="search-box-content">
-              <div class="search-box-item" v-for="album in searchList.albums">
-                <div class="image">
-                  <img :src="album.picUrl+'?param=50y50'" alt />
-                </div>
-                <div class="search-box-title-group">
-                  <div class="title" @click.stop="goToAlbum(album.id)">
-                    <a>{{album.name}}</a>
+            <section v-if="searchList!=null">
+              <div class="search-box-header">
+                <span class="search-box-title">PlayLists</span>
+                <span class="search-box-all">
+                  <a @click="searchPlayLists">Show All</a>
+                </span>
+              </div>
+              <div class="search-box-content">
+                <div class="search-box-item" v-for="playList in searchList.playLists">
+                  <div class="image">
+                    <img :src="playList.coverImgUrl+'?param=50y50'" alt />
                   </div>
-                  <div class="sub-title">
-                    Album By
-                    <span
-                      v-for="(artist,index) in album.artists"
-                      @click.stop="goToArtist(artist.id)"
-                    >
-                      <span v-if="index!==0">,</span>
-                      <a>{{artist.name}}</a>
-                    </span>
+                  <div class="search-box-title-group">
+                    <div class="title">
+                      <a>{{playList.name}}</a>
+                    </div>
+                    <div class="sub-title">
+                      PlayList By
+                      {{playList.creator.nickname}}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </section>
-
-          <section v-if="searchList.playLists.length>0">
-            <div class="search-box-header">
-              <span class="search-box-title">PlayLists</span>
-              <span class="search-box-all">
-                <a @click="searchPlayLists">Show All</a>
-              </span>
-            </div>
-            <div class="search-box-content">
-              <div class="search-box-item" v-for="playList in searchList.playLists">
-                <div class="image">
-                  <img :src="playList.coverImgUrl+'?param=50y50'" alt />
-                </div>
-                <div class="search-box-title-group">
-                  <div class="title">
-                    <a>{{playList.name}}</a>
-                  </div>
-                  <div class="sub-title">
-                    PlayList By
-                    {{playList.creator.nickname}}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
+            </section>
+          </div>
+          <div v-else class="no-result">
+            <p class="result-iconfont">
+              <span class="icon-search iconfont"></span>
+            </p>
+            <p class="result-one">No Results Found</p>
+            <p class="result-two">Please try again</p>
+          </div>
         </div>
       </div>
     </div>
@@ -145,7 +154,6 @@ export default {
   data() {
     return {
       result: "",
-      resLength: 0,
       focusOnly: false
     };
   },
@@ -154,7 +162,8 @@ export default {
       // 箭头函数可使代码更简练
       searchList: "searchList",
       searchResult: "searchResult",
-      focusFlag: "focusFlag"
+      focusFlag: "focusFlag",
+      resLength: "resLength"
     })
   },
   filters: {
@@ -173,6 +182,7 @@ export default {
     ...mapActions(["setSearchResultActions"]),
     ...mapActions(["setFocusFlagActions"]),
     ...mapActions(["setCategoryListActions"]),
+    ...mapActions(["setResLengthActions"]),
 
     goToTracks() {
       if (this.result) {
@@ -227,7 +237,9 @@ export default {
           .then(res => {
             //获取歌手单曲
             let resLength = res.data.result.order.length;
-            if (resLength > 0) {
+            this.setResLengthActions(resLength);
+            this.setFocusFlagActions(true);
+            if (resLength > 1) {
               let {
                 song: { songs: songs = [] } = {},
                 playList: { playLists: playLists = [] } = {},
@@ -245,10 +257,12 @@ export default {
                 artists,
                 albums
               });
-              this.setFocusFlagActions(true);
             } else {
-              this.setFocusFlagActions(false);
+              // this.setFocusFlagActions(false);
             }
+          })
+          .catch(err => {
+            console.log(err);
           });
       } else {
         this.setFocusFlagActions(false);
@@ -379,13 +393,10 @@ export default {
         console.log(err);
       });
     },
-    searchClick() {
+    clearSearch() {
       setTimeout(() => {
-        if (this.result) {
-          this.setFocusFlagActions(true);
-        } else {
-          this.setFocusFlagActions(false);
-        }
+        this.result = "";
+        this.setFocusFlagActions(false);
       }, 30);
     }
   },
@@ -405,7 +416,7 @@ export default {
 @import "~style/mixin.scss";
 .content-header {
   position: fixed;
-  left: 248px;
+  left: 240px;
   right: 20px;
   top: 0;
   padding: 18px 24px 0;
@@ -467,6 +478,13 @@ export default {
         padding: 0;
         -webkit-appearance: textfield;
       }
+      .icon-remove {
+        width: 24px;
+        height: 24px;
+        font-size: 20px;
+        line-height: 24px;
+        cursor: pointer;
+      }
       .search-box {
         width: 388px;
         position: fixed;
@@ -492,6 +510,38 @@ export default {
         pointer-events: auto;
         opacity: 1;
         transform: none;
+
+        .no-result {
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          p {
+            margin: 0;
+          }
+          .result-iconfont {
+            width: 96px;
+            height: 96px;
+            .iconfont {
+              font-size: 96px;
+              line-height: 96px;
+
+              color: rgba(229, 238, 255, 0.6);
+            }
+          }
+          .result-one {
+            font-size: 15px;
+            line-height: 24px;
+            color: #fff;
+            font-weight: 500;
+          }
+          .result-two {
+            font-size: 14px;
+            line-height: 21px;
+            color: #fff;
+            font-weight: 500;
+          }
+        }
 
         section:not(first-child) {
           margin-top: 32px;

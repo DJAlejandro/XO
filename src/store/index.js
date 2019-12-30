@@ -11,6 +11,7 @@ export default new Vuex.Store({
         searchList: {},
         searchResult: "",
         focusFlag: false,
+        resLength: 0,
         categoryList: [{}]
     },
     mutations: {
@@ -34,6 +35,9 @@ export default new Vuex.Store({
         },
         setCategoryList(state, data) {
             state.categoryList = data
+        },
+        setResLength(state, data) {
+            state.resLength = data
         }
     },
     actions: {
@@ -89,6 +93,14 @@ export default new Vuex.Store({
             return new Promise((resolve, reject) => {
                 setTimeout(() => {
                     context.commit('setCategoryList', data)
+                    resolve()
+                }, 100)
+            })
+        },
+        setResLengthActions(context, data) {
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    context.commit('setResLength', data)
                     resolve()
                 }, 100)
             })
