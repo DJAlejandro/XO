@@ -15,7 +15,14 @@
         <swiper-slide>
           <div class="home-slider-item" @click="goToArtist(item.id)">
             <div class="home-slider-img-wrapper">
-              <img :src="item.src+'?param=200y200'" :alt="item.name" class="item-img" />
+              <img
+                :src="item.src+'?param=200y200'"
+                :alt="item.name"
+                class="item-img"
+                v-if="item.src"
+              />
+              <div v-else class="sub-name">{{item.name | subName}}</div>
+
               <div class="home-slider-overlay">
                 <span class="icon-more iconfont" @click.stop="go"></span>
                 <span class="icon-play iconfont" @click.stop="go"></span>
@@ -52,6 +59,15 @@ export default {
       spaceBetween: 20,
       albumList: {}
     };
+  },
+  filters: {
+    subName: function(value) {
+      if (!value) return "";
+      let value2 = value.split(" ")[1];
+      if (!value2) return value.charAt(0).toUpperCase();
+
+      return value.charAt(0).toUpperCase() + value2.charAt(0).toUpperCase();
+    }
   },
   components: {
     VSlider
@@ -122,7 +138,18 @@ export default {
     height: 0;
     padding-bottom: 100%;
     border-radius: 50%;
-
+    background-color: #242528;
+    .sub-name {
+      font-size: 65px;
+      color: #72777f;
+      font-weight: 600;
+      text-transform: uppercase;
+      text-align: center;
+      margin-top: 50%;
+      line-height: 1;
+      -webkit-transform: translateY(-37.5px);
+      transform: translateY(-37.5px);
+    }
     .item-img {
       width: 100%;
       border-radius: 50%;

@@ -44,6 +44,10 @@ const routes = [{
     {
         path: '/search/:type',
         component: () => import( /* Explore */ '../views/Category.vue')
+    },
+    {
+        path: '/search/',
+        component: () => import( /* Explore */ '../views/Search.vue')
     }
 ]
 

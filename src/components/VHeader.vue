@@ -15,6 +15,7 @@
           v-model="result"
           @keyup="searchTimer"
           @focus="searchFocus"
+          @keyup.enter="goToSearch"
         />
         <span class="icon-remove iconfont" @click="clearSearch"></span>
         <div class="search-box" v-if=" focusFlag ">
@@ -236,6 +237,7 @@ export default {
           })
           .then(res => {
             //获取歌手单曲
+
             let resLength = res.data.result.order.length;
             this.setResLengthActions(resLength);
             this.setFocusFlagActions(true);
@@ -398,6 +400,14 @@ export default {
         this.result = "";
         this.setFocusFlagActions(false);
       }, 30);
+    },
+    goToSearch() {
+      this.setFocusFlagActions(false);
+      this.$router
+        .push({ path: "/search", query: { q: this.result } })
+        .catch(err => {
+          console.log(err);
+        });
     }
   },
   watch: {
