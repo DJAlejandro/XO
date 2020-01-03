@@ -34,6 +34,10 @@ const routes = [{
         component: () => import( /* Explore */ '../views/ArtistDetail.vue')
     },
     {
+        path: '/play-list',
+        component: () => import( /* Explore */ '../views/PlayListDetail.vue')
+    },
+    {
         path: '/top-tracks',
         component: () => import( /* Explore */ '../views/TopTracks.vue')
     },

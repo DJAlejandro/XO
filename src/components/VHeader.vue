@@ -113,11 +113,14 @@
               <div class="search-box-content">
                 <div class="search-box-item" v-for="playList in searchList.playLists">
                   <div class="image">
-                    <img :src="playList.coverImgUrl+'?param=50y50'" alt />
+                    <img
+                      :src="playList.coverImgUrl+'?param=50y50'"
+                      @click="goToPlayList(playList.id)"
+                    />
                   </div>
                   <div class="search-box-title-group">
                     <div class="title">
-                      <a>{{playList.name}}</a>
+                      <a @click="goToPlayList(playList.id)">{{playList.name}}</a>
                     </div>
                     <div class="sub-title">
                       PlayList By
@@ -218,13 +221,15 @@ export default {
           });
       }
     },
-    searchTimer() {
-      if (this.timer) {
-        clearTimeout(this.timer);
+    searchTimer($event) {
+      if ($event.key !== "Enter") {
+        if (this.timer) {
+          clearTimeout(this.timer);
+        }
+        this.timer = setTimeout(() => {
+          this.search();
+        }, 100);
       }
-      this.timer = setTimeout(() => {
-        this.search();
-      }, 100);
     },
     search() {
       if (this.result) {
@@ -237,6 +242,7 @@ export default {
           })
           .then(res => {
             //获取歌手单曲
+            console.log("serach");
 
             let resLength = res.data.result.order.length;
             this.setResLengthActions(resLength);
@@ -290,6 +296,8 @@ export default {
           })
           .then(res => {
             //获取歌手单曲
+            this.setFocusFlagActions(false);
+
             this.$router
               .push({ path: "/search/albums", query: { q: this.result } })
               .catch(err => {});
@@ -328,6 +336,7 @@ export default {
           })
           .then(res => {
             //获取歌手单曲
+            this.setFocusFlagActions(false);
 
             this.$router
               .push({ path: "/search/play-list", query: { q: this.result } })
@@ -366,6 +375,8 @@ export default {
           })
           .then(res => {
             //获取歌手单曲
+            this.setFocusFlagActions(false);
+
             this.$router
               .push({ path: "/search/artist", query: { q: this.result } })
               .catch(err => {});
@@ -386,12 +397,21 @@ export default {
       }
     },
     goToAlbum(id) {
+      console.log(2);
+
       this.setFocusFlagActions(false);
       this.$router.push({ path: "/album", query: { id } });
     },
     goToArtist(id) {
       this.setFocusFlagActions(false);
       this.$router.push({ path: "/artist", query: { id } }).catch(err => {
+        console.log(err);
+      });
+    },
+    goToPlayList(id) {
+      this.setFocusFlagActions(false);
+
+      this.$router.push({ path: "/play-list", query: { id } }).catch(err => {
         console.log(err);
       });
     },
@@ -402,12 +422,12 @@ export default {
       }, 30);
     },
     goToSearch() {
-      this.setFocusFlagActions(false);
       this.$router
         .push({ path: "/search", query: { q: this.result } })
         .catch(err => {
           console.log(err);
         });
+      this.setFocusFlagActions(false);
     }
   },
   watch: {

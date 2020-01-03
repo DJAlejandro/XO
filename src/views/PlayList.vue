@@ -2,7 +2,7 @@
   <div class="play-list-item">
     <div class="play-list-header">
       <h2 class="play-list-title">{{items.title}}</h2>
-      <a class="view-all" href="#">View all</a>
+      <a class="view-all" href="#" @click="viewAll">View all</a>
     </div>
     <v-slider
       :swiperWidth="swiperWidth"
@@ -70,7 +70,10 @@ export default {
         console.log(err);
       });
     },
-    go() {}
+    go() {},
+    viewAll() {
+      this.$emit("view-all");
+    }
   }
 };
 </script>

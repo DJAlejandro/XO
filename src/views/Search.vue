@@ -9,10 +9,10 @@
       <trackList :shortFlag="shortFlag" :viewFull="viewFull"></trackList>
     </div>
     <div class="play-list-wrapper">
-      <play-list :items="albums" />
+      <play-list :items="albums" @view-all="viewAll(1)" />
     </div>
     <div class="play-list-wrapper">
-      <play-list :items="playLists" />
+      <play-list :items="playLists" @view-all="viewAll(2)" />
     </div>
     <artists-list :artistsList="artistsList" />
   </div>
@@ -24,6 +24,7 @@ import PlayList from "./PlayList.vue";
 import ArtistsList from "./ArtistsList.vue";
 import axios from "axios";
 import TrackList from "./TrackList.vue";
+import { mapActions, mapState } from "vuex";
 
 let instance = axios.create({
   baseURL: "http://localhost:3000",
@@ -40,9 +41,12 @@ export default {
       songs: [],
       playLists: {},
       artists: {},
-      albums: {}
+      albums: {},
+      albums2: [],
+      playLists2: []
     };
   },
+
   components: {
     TrackList,
     ArtistsList,
@@ -51,13 +55,40 @@ export default {
   },
 
   methods: {
+    ...mapActions(["setCategoryListActions"]),
+    ...mapActions(["setFocusFlagActions"]),
+
     initSearch() {
       this.result = this.$route.query.q;
       this.searchAlbums();
       this.searchPlayLists();
       this.searchArtists();
     },
+    viewAll(type) {
+      if (type === 1) {
+        this.setFocusFlagActions(false);
 
+        this.$router
+          .push({ path: "/search/albums", query: { q: this.result } })
+          .catch(err => {});
+        console.log(this.albums2);
+
+        this.setCategoryListActions({
+          type: "album",
+          playLists: this.albums2
+        });
+      } else if (type === 2) {
+        this.setFocusFlagActions(false);
+
+        this.$router
+          .push({ path: "/search/play-list", query: { q: this.result } })
+          .catch(err => {});
+        this.setCategoryListActions({
+          type: "play-list",
+          playLists: this.playLists2
+        });
+      }
+    },
     searchAlbums() {
       if (this.result) {
         instance
@@ -71,17 +102,31 @@ export default {
           .then(res => {
             //获取歌手单曲
 
-            let playLists = [];
+            let playLists = [],
+              playLists2 = [];
             res.data.result.albums.forEach(function(item) {
-              let { name: title, id, picUrl, artist } = item;
+              let {
+                name: title,
+                id,
+                picUrl,
+                artist,
+                artist: { name, id: subId }
+              } = item;
               playLists.push({
                 title,
                 id,
                 src: picUrl,
                 artist
               });
+              playLists2.push({
+                title,
+                id,
+                src: picUrl,
+                desc: name,
+                subId
+              });
             });
-
+            this.albums2 = playLists2;
             this.albums = {
               title: "Albums",
               data: playLists
@@ -102,13 +147,14 @@ export default {
           .then(res => {
             //获取歌手单曲
 
-            let playLists = [];
+            let playLists = [],
+              playLists2 = [];
             res.data.result.playlists.forEach(function(item) {
               let {
                 name: title,
                 id,
-                coverImgUrl
-                // creator
+                coverImgUrl,
+                creator: { nickname }
               } = item;
               playLists.push({
                 title,
@@ -116,7 +162,14 @@ export default {
                 src: coverImgUrl
                 // artists:
               });
+              playLists2.push({
+                title,
+                id,
+                src: coverImgUrl,
+                desc: nickname
+              });
             });
+            this.playLists2 = playLists2;
             this.playLists = {
               title: "PlayLists",
               data: playLists
@@ -136,7 +189,6 @@ export default {
           })
           .then(res => {
             //获取歌手单曲
-            console.log(res);
 
             let playLists = [];
             res.data.result.artists.forEach(function(item) {
@@ -147,10 +199,8 @@ export default {
                 src: picUrl
               });
             });
-            console.log(playLists);
-
             this.artistsList = {
-              title: "Related Artists",
+              title: "Artists",
               data: playLists
             };
           });
@@ -166,7 +216,7 @@ export default {
 
 <style lang="scss" scoped>
 .media-container {
-  margin: 0 28px;
+  margin: 80px 28px 0;
   margin-bottom: 48px;
   min-height: 120px;
   z-index: 1;

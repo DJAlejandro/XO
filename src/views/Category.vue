@@ -1,5 +1,7 @@
 <template>
   <div class="category-container">
+    <v-header />
+
     <div class="category-paginate" v-if="categoryList.playLists">
       <paginate name="languages" :list="categoryList.playLists" :per="20">
         <li
@@ -8,8 +10,16 @@
           v-for="playlist in paginated('languages')"
         >
           <div class="img-wrapper">
-            <img :src="playlist.src+'?param=360y360'" v-if="playlist.src" />
-            <div v-else class="sub-name">{{playlist.title | subName}}</div>
+            <img
+              :src="playlist.src+'?param=360y360'"
+              v-if="playlist.src"
+              @click="goToTitle(playlist.id)"
+            />
+            <div
+              v-else
+              class="sub-name"
+              @click="goToTitle(playlist.id)"
+            >{{playlist.title | subName}}</div>
           </div>
           <div class="category-item-content">
             <span class="category-item-content-text" @click="goToTitle(playlist.id)">
@@ -39,7 +49,9 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
+import { mapState, mapActions } from "vuex";
+import VHeader from "components/VHeader.vue";
+
 const ALBUM = 1,
   PLAYLIST = 2,
   ARTIST = 3;
@@ -51,6 +63,9 @@ export default {
       isArtist: false
     };
   },
+  components: {
+    VHeader
+  },
   filters: {
     subName: function(value) {
       if (!value) return "";
@@ -61,13 +76,26 @@ export default {
     }
   },
   methods: {
+    ...mapActions(["setFocusFlagActions"]),
+
     goToAlbum(id) {
+      this.setFocusFlagActions(false);
+
       this.$router.push({ path: "/album", query: { id } }).catch(err => {
         console.log(err);
       });
     },
     goToArtist(id) {
+      this.setFocusFlagActions(false);
+
       this.$router.push({ path: "/artist", query: { id } }).catch(err => {
+        console.log(err);
+      });
+    },
+    goToPlayList(id) {
+      this.setFocusFlagActions(false);
+
+      this.$router.push({ path: "/play-list", query: { id } }).catch(err => {
         console.log(err);
       });
     },
@@ -77,6 +105,7 @@ export default {
           this.goToAlbum(id);
           break;
         case 2:
+          this.goToPlayList(id);
           break;
         case 3:
           this.goToArtist(id);
@@ -122,6 +151,9 @@ export default {
         default:
           break;
       }
+    },
+    $route(to, from) {
+      // 对路由变化作出响应...
     }
   }
 };
@@ -133,7 +165,7 @@ export default {
 @import "~style/index.scss";
 
 .category-paginate {
-  margin: 40px 0;
+  margin: 80px 0 40px;
   a {
     color: #fff;
   }
