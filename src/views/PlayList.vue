@@ -27,14 +27,14 @@
                 <a>{{item.title}}</a>
               </span>
               <span class="home-slider-content-text">
-                <!-- <span
+                <span
                   class="aritst"
                   v-for="(aritst,index) in item.artists"
                   @click="goToArtist(aritst.id)"
                 >
                   <i v-if="index!==0">,</i>
                   <a>{{aritst.name}}</a>
-                </span>-->
+                </span>
               </span>
             </div>
           </div>

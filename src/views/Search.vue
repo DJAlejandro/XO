@@ -57,12 +57,15 @@ export default {
   methods: {
     ...mapActions(["setCategoryListActions"]),
     ...mapActions(["setFocusFlagActions"]),
+    ...mapActions(["setTrackListActions"]),
+    ...mapActions(["setViewFullActions"]),
 
     initSearch() {
       this.result = this.$route.query.q;
       this.searchAlbums();
       this.searchPlayLists();
       this.searchArtists();
+      this.searchSongs();
     },
     viewAll(type) {
       if (type === 1) {
@@ -71,7 +74,6 @@ export default {
         this.$router
           .push({ path: "/search/albums", query: { q: this.result } })
           .catch(err => {});
-        console.log(this.albums2);
 
         this.setCategoryListActions({
           type: "album",
@@ -101,6 +103,7 @@ export default {
           })
           .then(res => {
             //获取歌手单曲
+            console.log(res);
 
             let playLists = [],
               playLists2 = [];
@@ -109,21 +112,22 @@ export default {
                 name: title,
                 id,
                 picUrl,
-                artist,
+                artists,
                 artist: { name, id: subId }
               } = item;
               playLists.push({
                 title,
                 id,
                 src: picUrl,
-                artist
+                artists
               });
               playLists2.push({
                 title,
                 id,
                 src: picUrl,
                 desc: name,
-                subId
+                subId,
+                artists
               });
             });
             this.albums2 = playLists2;
@@ -205,10 +209,76 @@ export default {
             };
           });
       }
+    },
+    searchSongs() {
+      instance
+        .get("/search", {
+          params: {
+            keywords: this.result,
+            type: 1,
+            limit: 100
+          }
+        })
+        .then(res => {
+          //获取歌手单曲
+
+          let tracks = [];
+          res.data.result.songs.forEach(item => {
+            let { duration, name, id, artists, album } = item;
+            tracks.push({
+              time: duration,
+              name,
+              artists,
+              album,
+              id
+            });
+          });
+          this.setTrackListActions(tracks);
+        });
+    },
+    goToTracks() {
+      if (this.result) {
+        instance
+          .get("/search", {
+            params: {
+              keywords: this.result,
+              type: 1,
+              limit: 100
+            }
+          })
+          .then(res => {
+            //获取歌手单曲
+            let tracks = [];
+            res.data.result.songs.forEach(item => {
+              let { duration, name, id, artists, album } = item;
+              tracks.push({
+                time: duration,
+                name,
+                artists,
+                album: album,
+                id
+              });
+            });
+            this.setTrackListActions(tracks);
+            this.setViewFullActions(false);
+            this.setFocusFlagActions(false);
+
+            this.$router
+              .push({ path: "/search/tracks", query: { q: this.result } })
+              .catch(err => {});
+          });
+      }
     }
   },
   mounted() {
     this.initSearch();
+    this.$emit("scroll-top");
+  },
+  watch: {
+    $route(to, from) {
+      // 对路由变化作出响应...
+      this.$emit("scroll-top");
+    }
   }
 };
 </script>

@@ -50,6 +50,10 @@ const routes = [{
         component: () => import( /* Explore */ '../views/Category.vue')
     },
     {
+        path: '/artist/:type',
+        component: () => import( /* Explore */ '../views/Category.vue')
+    },
+    {
         path: '/search/',
         component: () => import( /* Explore */ '../views/Search.vue')
     }

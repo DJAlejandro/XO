@@ -2,8 +2,8 @@
   <div class="content-header">
     <div class="header-container">
       <div class="header-goto">
-        <span class="icon-back iconfont"></span>
-        <span class="icon-forward iconfont"></span>
+        <span class="icon-back iconfont" @click="back"></span>
+        <span class="icon-forward iconfont" @click="forward"></span>
       </div>
       <div class="header-content">{{tag}}</div>
       <div class="header-search" @click.stop :class="{focus:focusOnly}">
@@ -187,7 +187,12 @@ export default {
     ...mapActions(["setFocusFlagActions"]),
     ...mapActions(["setCategoryListActions"]),
     ...mapActions(["setResLengthActions"]),
-
+    back() {
+      this.$router.go(-1);
+    },
+    forward() {
+      this.$router.go(1);
+    },
     goToTracks() {
       if (this.result) {
         instance
@@ -242,7 +247,6 @@ export default {
           })
           .then(res => {
             //获取歌手单曲
-            console.log("serach");
 
             let resLength = res.data.result.order.length;
             this.setResLengthActions(resLength);
@@ -307,14 +311,16 @@ export default {
                 name: title,
                 id,
                 picUrl,
-                artist: { name, id: subId }
+                artist: { name, id: subId },
+                artists
               } = item;
               playLists.push({
                 title,
                 id,
                 src: picUrl,
                 desc: name,
-                subId
+                subId,
+                artists
               });
             });
             this.setCategoryListActions({
@@ -397,8 +403,6 @@ export default {
       }
     },
     goToAlbum(id) {
-      console.log(2);
-
       this.setFocusFlagActions(false);
       this.$router.push({ path: "/album", query: { id } });
     },
@@ -460,6 +464,7 @@ export default {
     .header-goto {
       span {
         font-size: 24px;
+        cursor: pointer;
       }
       span:first-child {
         margin-right: 8px;

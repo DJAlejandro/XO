@@ -16,7 +16,7 @@
       v-if="track!=null"
     >
       <div class="media-index">
-        <div class="text" v-if="viewFull && track.album!=null" :class="{active:viewFull}">
+        <div class="text" v-if="viewFull && track.album.picUrl" :class="{active:viewFull}">
           <img :src="track.album.picUrl+'?param=42y42'" alt="track.name" />
         </div>
         <div class="text" v-else>{{index+1}}</div>

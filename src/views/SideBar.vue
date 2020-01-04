@@ -152,6 +152,7 @@ export default {};
       }
       &:hover {
         background-color: #4c4e54;
+        text-decoration: none;
       }
       .iconfont {
         width: 24px;

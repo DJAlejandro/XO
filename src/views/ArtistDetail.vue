@@ -63,13 +63,13 @@
       <trackList :shortFlag="shortFlag" :viewFull="viewFull"></trackList>
     </div>
     <div class="play-list-wrapper">
-      <play-list :items="albums" />
+      <play-list :items="albums" @view-all="viewAll(1)" />
     </div>
     <div class="play-list-wrapper">
-      <play-list :items="eps" />
+      <play-list :items="eps" @view-all="viewAll(2)" />
     </div>
     <div class="play-list-wrapper" v-if="others.length>0">
-      <play-list :items="others" />
+      <play-list :items="others" @view-all="viewAll(3)" />
     </div>
     <artists-list :artistsList="artistsList" />
   </div>
@@ -102,12 +102,16 @@ export default {
       shortFlag: true,
       viewFull: true,
       height: 0,
-      scrollTop: 0
+      scrollTop: 0,
+      albums2: [],
+      eps2: [],
+      others2: []
     };
   },
   methods: {
     ...mapActions(["setTrackListActions"]),
     ...mapActions(["setViewFullActions"]),
+    ...mapActions(["setCategoryListActions"]),
 
     goToTracks() {
       let id = this.$route.query.id;
@@ -121,14 +125,23 @@ export default {
       let arr = [];
       data.forEach(function(item) {
         tag ? (item = item.album) : (item = item);
-        let { picUrl, name, type, artists, id } = item;
+        let {
+          picUrl,
+          name: title,
+          type,
+          artists,
+          id,
+          artists: { name, id: subId }
+        } = item;
 
         arr.push({
           src: picUrl,
-          title: name,
+          title,
           artists,
           type,
-          id
+          id,
+          desc: name,
+          subId
         });
       });
       return arr;
@@ -147,7 +160,6 @@ export default {
         })
         .then(res => {
           this.artist = res.data.artist;
-          // console.log(res); //获取歌手描述
         });
 
       instance
@@ -176,12 +188,11 @@ export default {
       instance
         .get("/artist/album", {
           params: {
-            id
+            id,
+            limit: 200
           }
         })
         .then(res => {
-          // console.log(res); //获取歌手专辑
-
           let data = this.serialData(res.data.hotAlbums, false);
           let eps = [];
           let albums = [];
@@ -199,6 +210,9 @@ export default {
                 break;
             }
           });
+          this.eps2 = eps;
+          this.albums2 = albums;
+          this.others2 = others;
           this.eps = {
             title: "EP & Singles",
             data: eps
@@ -220,7 +234,6 @@ export default {
           }
         })
         .then(res => {
-          // console.log(res); //获取相似歌手
           let artists = [];
           res.data.artists.forEach(function(item) {
             let { id, img1v1Url, name } = item;
@@ -236,6 +249,33 @@ export default {
             data: artists
           };
         });
+    },
+    viewAll(type) {
+      switch (type) {
+        case 1:
+          this.$router.push({ path: "/artist/albums" }).catch(err => {});
+          this.setCategoryListActions({
+            type: "album",
+            playLists: this.albums2
+          });
+          break;
+        case 2:
+          this.$router.push({ path: "/artist/eps" }).catch(err => {});
+          this.setCategoryListActions({
+            type: "album",
+            playLists: this.eps2
+          });
+          break;
+        case 3:
+          this.$router.push({ path: "/artist/others" }).catch(err => {});
+          this.setCategoryListActions({
+            type: "album",
+            playLists: this.others2
+          });
+          break;
+        default:
+          break;
+      }
     }
   },
   components: {

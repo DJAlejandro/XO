@@ -31,7 +31,17 @@
               @click="goToDesc(playlist.subId)"
             >
               <span class="category-last" v-if="type===2">Created By &nbsp;</span>
-              <a class="category-last">{{playlist.desc}}</a>
+              <a class="category-last" v-if="type!==1">{{playlist.desc}}</a>
+              <span v-if="type===1">
+                <span
+                  class="aritst category-last"
+                  v-for="(aritst,index) in playlist.artists"
+                  @click="goToArtist(aritst.id)"
+                >
+                  <i v-if="index!==0">,</i>
+                  <a>{{aritst.name}}</a>
+                </span>
+              </span>
             </span>
           </div>
         </li>
@@ -154,7 +164,11 @@ export default {
     },
     $route(to, from) {
       // 对路由变化作出响应...
+      this.$emit("scroll-top");
     }
+  },
+  mounted() {
+    this.$emit("scroll-top");
   }
 };
 </script>
@@ -173,7 +187,7 @@ export default {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     grid-column-gap: 20px; //列与列的间隔
-    grid-row-gap: 20px; //行与行的间隔
+    grid-row-gap: 40px; //行与行的间隔
     margin: 0 25px;
   }
   .category-paginate-item {
@@ -197,6 +211,9 @@ export default {
       width: 100%;
       height: 0;
       padding-bottom: 100%;
+      &:hover {
+        cursor: pointer;
+      }
       .sub-name {
         font-size: 75px;
         color: #a7aeba;
@@ -225,6 +242,9 @@ export default {
         }
         .category-last {
           color: rgba(229, 238, 255, 0.6);
+          a {
+            color: rgba(229, 238, 255, 0.6);
+          }
         }
       }
     }
