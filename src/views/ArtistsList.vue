@@ -2,7 +2,7 @@
   <div class="artist-list-item">
     <div class="artist-list-header">
       <h2 class="artist-list-title">{{artistsList.title}}</h2>
-      <a class="view-all" @click="searchArtists">View all</a>
+      <a class="view-all" @click="goToArtists">View all</a>
     </div>
     <v-slider
       :swiperWidth="swiperWidth"
@@ -13,7 +13,7 @@
     >
       <template v-for="item in artistsList.data">
         <swiper-slide>
-          <div class="home-slider-item" @click="goToArtist(item.id)">
+          <div class="home-slider-item" @click="goToArtist(item.id,false)">
             <div class="home-slider-img-wrapper">
               <img
                 :src="item.src+'?param=200y200'"
@@ -43,21 +43,19 @@
 
 <script>
 import VSlider from "components/VSlider.vue";
-import axios from "axios";
 
-import { mapActions, mapState } from "vuex";
-let instance = axios.create({
-  baseURL: "http://localhost:3000",
-  timeout: 30000,
-  withCredentials: true
-});
+import mixins from "mixins/index.js";
+import { instance } from "mixins/index.js";
 export default {
+  mixins: [mixins],
   props: {
     artistsList: {
       default: {},
-      result: "",
-
       type: Object
+    },
+    listFlag: {
+      default: false,
+      type: Boolean
     }
   },
   data() {
@@ -70,66 +68,32 @@ export default {
       albumList: {}
     };
   },
-  filters: {
-    subName: function(value) {
-      if (!value) return "";
-      let value2 = value.split(" ")[1];
-      if (!value2) return value.charAt(0).toUpperCase();
 
-      return value.charAt(0).toUpperCase() + value2.charAt(0).toUpperCase();
-    }
-  },
   components: {
     VSlider
   },
   methods: {
-    ...mapActions(["setFocusFlagActions"]),
-    ...mapActions(["setCategoryListActions"]),
-    goToArtist(id) {
-      this.$router.push({ path: "/artist", query: { id } }).catch(err => {});
-    },
     go() {},
-    searchArtists() {
-      if (this.result) {
-        instance
-          .get("/search", {
-            params: {
-              keywords: this.result,
-              type: 100,
-              limit: 100
-            }
-          })
-          .then(res => {
-            //获取歌手单曲
-            this.setFocusFlagActions(false);
-
-            this.$router
-              .push({ path: "/search/artist", query: { q: this.result } })
-              .catch(err => {});
-            let playLists = [];
-            res.data.result.artists.forEach(function(item) {
-              let { name: title, id, picUrl } = item;
-              playLists.push({
-                title,
-                id,
-                src: picUrl
-              });
-            });
-            this.setCategoryListActions({
-              type: "artist",
-              playLists
-            });
-          });
+    goToArtists() {
+      if (this.listFlag) {
+        this.setFocusFlagActions(false);
+        this.$router
+          .push({ path: "/search/artist", query: { q: this.result } })
+          .catch(err => {});
+      } else {
+        this.$router
+          .push({ path: "/related-artist", query: { q: this.result } })
+          .catch(err => {});
       }
+
+      this.setCategoryListActions({
+        type: "artist",
+        playLists: this.artistsList.data
+      });
     }
   },
   mounted() {
     this.result = this.searchResult;
-  },
-  computed: {
-    ...mapState({
-      searchResult: "searchResult"
-    })
   }
 };
 </script>

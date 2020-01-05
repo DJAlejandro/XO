@@ -58,7 +58,7 @@
     <div class="media-container">
       <div class="media-header">
         <div class="media-header-title">Top Tracks</div>
-        <a href="#" class="view-all" @click="goToTracks()">View all</a>
+        <a href="#" class="view-all" @click="goToTracks2()">View all</a>
       </div>
       <trackList :shortFlag="shortFlag" :viewFull="viewFull"></trackList>
     </div>
@@ -80,17 +80,11 @@ import ArtistsList from "./ArtistsList.vue";
 import PlayList from "./PlayList.vue";
 import VHeader from "components/VHeader.vue";
 import TrackList from "./TrackList.vue";
-import { mapActions } from "vuex";
-
-import axios from "axios";
-
-let instance = axios.create({
-  baseURL: "http://localhost:3000",
-  timeout: 30000,
-  withCredentials: true
-});
+import mixins from "mixins/index.js";
+import { instance } from "mixins/index.js";
 
 export default {
+  mixins: [mixins],
   data() {
     return {
       hotAlbums: [],
@@ -100,7 +94,6 @@ export default {
       artistsList: {},
       artist: {},
       shortFlag: true,
-      viewFull: true,
       height: 0,
       scrollTop: 0,
       albums2: [],
@@ -109,18 +102,6 @@ export default {
     };
   },
   methods: {
-    ...mapActions(["setTrackListActions"]),
-    ...mapActions(["setViewFullActions"]),
-    ...mapActions(["setCategoryListActions"]),
-
-    goToTracks() {
-      let id = this.$route.query.id;
-      this.setViewFullActions(true);
-
-      this.$router
-        .push({ path: "/top-tracks", query: { id } })
-        .catch(err => {});
-    },
     serialData(data, tag) {
       let arr = [];
       data.forEach(function(item) {
@@ -227,28 +208,7 @@ export default {
           };
         });
 
-      instance
-        .get("/simi/artist", {
-          params: {
-            id
-          }
-        })
-        .then(res => {
-          let artists = [];
-          res.data.artists.forEach(function(item) {
-            let { id, img1v1Url, name } = item;
-            artists.push({
-              id,
-              name,
-              src: img1v1Url
-            });
-          });
-
-          this.artistsList = {
-            title: "Related Artists",
-            data: artists
-          };
-        });
+      this.relatedArtist(id);
     },
     viewAll(type) {
       switch (type) {

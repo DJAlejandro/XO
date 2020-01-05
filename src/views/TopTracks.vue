@@ -9,21 +9,15 @@
 <script>
 import TrackList from "./TrackList.vue";
 import VHeader from "components/VHeader.vue";
-import { mapState } from "vuex";
-
+import mixins from "mixins/index.js";
 export default {
+  mixins:[mixins],
   components: {
     VHeader,
     TrackList
   },
   data() {
     return {};
-  },
-  computed: {
-    ...mapState({
-      // 箭头函数可使代码更简练
-      viewFull: "viewFull"
-    })
   }
 };
 </script>

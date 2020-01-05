@@ -47,20 +47,16 @@
   </div>
 </template>
 <script>
-import axios from "axios";
 import { format } from "date-fns";
-import { mapActions } from "vuex";
 
 import VHeader from "components/VHeader.vue";
 import ArtistsList from "./ArtistsList.vue";
 import TrackList from "./TrackList.vue";
-let instance = axios.create({
-  baseURL: "http://localhost:3000",
-  timeout: 30000,
-  withCredentials: true
-});
+import mixins from "mixins/index.js";
+import { instance } from "mixins/index.js";
+
 export default {
-  props: {},
+  mixins: [mixins],
   data() {
     return {
       albumList: {},
@@ -86,7 +82,6 @@ export default {
     }
   },
   methods: {
-    ...mapActions(["setTrackListActions"]),
     initAlbum() {
       this.$emit("scroll-top");
       let id = this.$route.query.id;
@@ -123,27 +118,7 @@ export default {
             publishTime //发行时间
           };
           this.setTrackListActions(tracks);
-          return instance.get("/simi/artist", {
-            params: {
-              id: this.artist.id
-            }
-          });
-        })
-        .then(res => {
-          let artists = [];
-          res.data.artists.forEach(function(item) {
-            let { id, img1v1Url, name } = item;
-            artists.push({
-              id,
-              name,
-              src: img1v1Url
-            });
-          });
-
-          this.artistsList = {
-            title: "Related Artists",
-            data: artists
-          };
+          this.relatedArtist(this.artist.id);
         });
     }
   },

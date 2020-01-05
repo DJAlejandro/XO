@@ -27,13 +27,13 @@
       <div class="media-title" v-if="track.name">{{track.name}}</div>
       <div class="media-artist">
         <a href="#">
-          <span v-for="(artist,index) in track.artists" @click="goToArtist(artist.id)">
+          <span v-for="(artist,index) in track.artists" @click="goToArtist(artist.id,true)">
             <span v-if="index!==0">,</span>
             {{artist.name}}
           </span>
         </a>
       </div>
-      <div class="media-album" v-if="viewFull" @click="goToAlbum(track.album.id)">
+      <div class="media-album" v-if="viewFull" @click="goToAlbum(track.album.id,true)">
         <a href="#">{{track.album.name}}</a>
       </div>
       <div class="media-time">{{InstoreTime(track.time)}}</div>
@@ -47,15 +47,11 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
-
+import mixins from "mixins/index.js";
 export default {
+  mixins: [mixins],
   props: {
     shortFlag: {
-      type: Boolean,
-      default: false
-    },
-    viewFull: {
       type: Boolean,
       default: false
     }
@@ -66,10 +62,6 @@ export default {
     };
   },
   computed: {
-    ...mapState({
-      // 箭头函数可使代码更简练
-      trackList: "trackList"
-    }),
     tracks() {
       return this.shortFlag ? this.trackList.slice(0, 5) : this.trackList;
     }
@@ -84,14 +76,6 @@ export default {
     },
     changeIndex(index) {
       this.activeIndex = index;
-    },
-    goToAlbum(id) {
-      this.$router.push({ path: "/album", query: { id } });
-    },
-    goToArtist(id) {
-      this.$router.push({ path: "/artist", query: { id } }).catch(err => {
-        console.log(err);
-      });
     }
   }
 };

@@ -54,6 +54,10 @@ const routes = [{
         component: () => import( /* Explore */ '../views/Category.vue')
     },
     {
+        path: '/related-artist',
+        component: () => import( /* Explore */ '../views/Category.vue')
+    },
+    {
         path: '/search/',
         component: () => import( /* Explore */ '../views/Search.vue')
     }

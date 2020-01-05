@@ -14,7 +14,7 @@
       <template v-for="item in items.data">
         <swiper-slide>
           <div class="home-slider-item">
-            <div class="home-slider-img-wrapper" @click="goToAlbum(item.id)">
+            <div class="home-slider-img-wrapper" @click="goToAlbum(item.id,false)">
               <img :src="item.src+'?param=200y200'" :alt="item.title" class="item-img" />
               <div class="home-slider-overlay">
                 <span class="icon-more iconfont" @click.stop="go"></span>
@@ -23,14 +23,14 @@
               </div>
             </div>
             <div class="home-slider-content">
-              <span class="home-slider-content-text" @click="goToAlbum(item.id)">
+              <span class="home-slider-content-text" @click="goToAlbum(item.id,false)">
                 <a>{{item.title}}</a>
               </span>
               <span class="home-slider-content-text">
                 <span
                   class="aritst"
                   v-for="(aritst,index) in item.artists"
-                  @click="goToArtist(aritst.id)"
+                  @click="goToArtist(aritst.id,false)"
                 >
                   <i v-if="index!==0">,</i>
                   <a>{{aritst.name}}</a>
@@ -46,7 +46,10 @@
 
 <script>
 import VSlider from "components/VSlider.vue";
+import mixins from "mixins/index.js";
+
 export default {
+  mixins: [mixins],
   props: ["items"],
   data() {
     return {
@@ -62,14 +65,6 @@ export default {
     VSlider
   },
   methods: {
-    goToAlbum(id) {
-      this.$router.push({ path: "/album", query: { id } });
-    },
-    goToArtist(id) {
-      this.$router.push({ path: "/artist", query: { id } }).catch(err => {
-        console.log(err);
-      });
-    },
     go() {},
     viewAll() {
       this.$emit("view-all");

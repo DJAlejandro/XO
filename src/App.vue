@@ -13,9 +13,9 @@
 <script>
 import SideBar from "./views/SideBar.vue";
 import Home from "./views/Home.vue";
-import { mapActions, mapState } from "vuex";
-
+import mixins from "mixins/index.js";
 export default {
+  mixins: [mixins],
   data() {
     return {
       contentArea: Home
@@ -25,9 +25,6 @@ export default {
     SideBar
   },
   methods: {
-    ...mapActions(["setSearchListActions"]),
-    ...mapActions(["setFocusFlagActions"]),
-
     scrollTop() {
       this.$refs.content.scrollTop = 0;
     },

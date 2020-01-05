@@ -36,16 +36,15 @@
 <script>
 // @ is an alias to /src
 import Cookies from "js-cookie";
-import { mapActions } from "vuex";
-import { mapState } from "vuex";
-
-import axios from "axios";
 import { log } from "util";
 import Vue from "vue";
 import VHeader from "components/VHeader.vue";
 import VSlider from "components/VSlider.vue";
 import PlayList from "./PlayList.vue";
+import mixins from "mixins/index.js";
+import { instance } from "mixins/index.js";
 export default {
+  mixins: [mixins],
   name: "home",
   components: {
     VHeader,
@@ -73,9 +72,6 @@ export default {
     };
   },
   methods: {
-    ...mapActions([
-      "setCookieActions" // 将 `this.setCookieActions()` 映射为 `this.$store.dispatch('setCookieActions')
-    ]),
     serialData(data, tag) {
       let arr = [];
       data.forEach(function(item) {
@@ -108,12 +104,6 @@ export default {
     }
   },
   created() {
-    let instance = axios.create({
-      baseURL: "http://localhost:3000",
-      timeout: 30000,
-      withCredentials: true
-    });
-
     // instance.get('/comment/music',{
     //   params:{
     //     id:186016,
@@ -165,14 +155,7 @@ export default {
     // instance.get("/toplist/detail").then(res => {
     //   console.log(res.data); //全部新歌
     // });
-  },
-  computed: {
-    ...mapState({
-      // 箭头函数可使代码更简练
-      userCookie: "userCookie"
-    })
-  },
-  mounted() {}
+  }
 };
 </script>
 

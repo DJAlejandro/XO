@@ -63,7 +63,7 @@
                     <div v-else>{{artist.name | subName}}</div>
                   </div>
                   <div class="search-box-title-group">
-                    <div class="title" @click.stop="goToArtist(artist.id)">
+                    <div class="title" @click.stop="goToArtist(artist.id,true)">
                       <a>{{artist.name}}</a>
                     </div>
                     <div class="sub-title">Artist</div>
@@ -85,14 +85,14 @@
                     <img :src="album.picUrl+'?param=50y50'" alt />
                   </div>
                   <div class="search-box-title-group">
-                    <div class="title" @click.stop="goToAlbum(album.id)">
+                    <div class="title" @click.stop="goToAlbum(album.id,true)">
                       <a>{{album.name}}</a>
                     </div>
                     <div class="sub-title">
                       Album By
                       <span
                         v-for="(artist,index) in album.artists"
-                        @click.stop="goToArtist(artist.id)"
+                        @click.stop="goToArtist(artist.id,true)"
                       >
                         <span v-if="index!==0">,</span>
                         <a>{{artist.name}}</a>
@@ -115,12 +115,12 @@
                   <div class="image">
                     <img
                       :src="playList.coverImgUrl+'?param=50y50'"
-                      @click="goToPlayList(playList.id)"
+                      @click="goToPlayList(playList.id,true)"
                     />
                   </div>
                   <div class="search-box-title-group">
                     <div class="title">
-                      <a @click="goToPlayList(playList.id)">{{playList.name}}</a>
+                      <a @click="goToPlayList(playList.id,true)">{{playList.name}}</a>
                     </div>
                     <div class="sub-title">
                       PlayList By
@@ -145,15 +145,10 @@
 </template>
 
 <script>
-import axios from "axios";
-import { mapActions, mapState } from "vuex";
-
-let instance = axios.create({
-  baseURL: "http://localhost:3000",
-  timeout: 30000,
-  withCredentials: true
-});
+import mixins from "mixins/index.js";
+import { instance } from "mixins/index.js";
 export default {
+  mixins: [mixins],
   props: ["tag"],
   data() {
     return {
@@ -161,71 +156,14 @@ export default {
       focusOnly: false
     };
   },
-  computed: {
-    ...mapState({
-      // 箭头函数可使代码更简练
-      searchList: "searchList",
-      searchResult: "searchResult",
-      focusFlag: "focusFlag",
-      resLength: "resLength"
-    })
-  },
-  filters: {
-    subName: function(value) {
-      if (!value) return "";
-      let value2 = value.split(" ")[1];
-      if (!value2) return value.charAt(0).toUpperCase();
-
-      return value.charAt(0).toUpperCase() + value2.charAt(0).toUpperCase();
-    }
-  },
   methods: {
-    ...mapActions(["setViewFullActions"]),
-    ...mapActions(["setTrackListActions"]),
-    ...mapActions(["setSearchListActions"]),
-    ...mapActions(["setSearchResultActions"]),
-    ...mapActions(["setFocusFlagActions"]),
-    ...mapActions(["setCategoryListActions"]),
-    ...mapActions(["setResLengthActions"]),
     back() {
       this.$router.go(-1);
     },
     forward() {
       this.$router.go(1);
     },
-    goToTracks() {
-      if (this.result) {
-        instance
-          .get("/search", {
-            params: {
-              keywords: this.result,
-              type: 1,
-              limit: 100
-            }
-          })
-          .then(res => {
-            //获取歌手单曲
-            let tracks = [];
-            res.data.result.songs.forEach(item => {
-              let { duration, name, id, artists, album } = item;
-              tracks.push({
-                time: duration,
-                name,
-                artists,
-                album: album,
-                id
-              });
-            });
-            this.setTrackListActions(tracks);
-            this.setViewFullActions(false);
-            this.setFocusFlagActions(false);
 
-            this.$router
-              .push({ path: "/search/tracks", query: { q: this.result } })
-              .catch(err => {});
-          });
-      }
-    },
     searchTimer($event) {
       if ($event.key !== "Enter") {
         if (this.timer) {
@@ -288,137 +226,7 @@ export default {
         this.setFocusFlagActions(false);
       }
     },
-    searchAlbums() {
-      if (this.result) {
-        instance
-          .get("/search", {
-            params: {
-              keywords: this.result,
-              type: 10,
-              limit: 100
-            }
-          })
-          .then(res => {
-            //获取歌手单曲
-            this.setFocusFlagActions(false);
 
-            this.$router
-              .push({ path: "/search/albums", query: { q: this.result } })
-              .catch(err => {});
-            let playLists = [];
-            res.data.result.albums.forEach(function(item) {
-              let {
-                name: title,
-                id,
-                picUrl,
-                artist: { name, id: subId },
-                artists
-              } = item;
-              playLists.push({
-                title,
-                id,
-                src: picUrl,
-                desc: name,
-                subId,
-                artists
-              });
-            });
-            this.setCategoryListActions({
-              type: "album",
-              playLists
-            });
-          });
-      }
-    },
-    searchPlayLists() {
-      if (this.result) {
-        instance
-          .get("/search", {
-            params: {
-              keywords: this.result,
-              type: 1000,
-              limit: 100
-            }
-          })
-          .then(res => {
-            //获取歌手单曲
-            this.setFocusFlagActions(false);
-
-            this.$router
-              .push({ path: "/search/play-list", query: { q: this.result } })
-              .catch(err => {});
-            let playLists = [];
-            res.data.result.playlists.forEach(function(item) {
-              let {
-                name: title,
-                id,
-                coverImgUrl,
-                creator: { nickname }
-              } = item;
-              playLists.push({
-                title,
-                id,
-                src: coverImgUrl,
-                desc: nickname
-              });
-            });
-            this.setCategoryListActions({
-              type: "play-list",
-              playLists
-            });
-          });
-      }
-    },
-    searchArtists() {
-      if (this.result) {
-        instance
-          .get("/search", {
-            params: {
-              keywords: this.result,
-              type: 100,
-              limit: 100
-            }
-          })
-          .then(res => {
-            //获取歌手单曲
-            this.setFocusFlagActions(false);
-
-            this.$router
-              .push({ path: "/search/artist", query: { q: this.result } })
-              .catch(err => {});
-            let playLists = [];
-            res.data.result.artists.forEach(function(item) {
-              let { name: title, id, picUrl } = item;
-              playLists.push({
-                title,
-                id,
-                src: picUrl
-              });
-            });
-            this.setCategoryListActions({
-              type: "artist",
-              playLists
-            });
-          });
-      }
-    },
-    goToAlbum(id) {
-      this.setFocusFlagActions(false);
-      this.$router.push({ path: "/album", query: { id } });
-    },
-    goToArtist(id) {
-      this.setFocusFlagActions(false);
-      this.$router.push({ path: "/artist", query: { id } }).catch(err => {
-        console.log(err);
-      });
-    },
-    goToPlayList(id) {
-      this.setFocusFlagActions(false);
-
-      this.$router.push({ path: "/play-list", query: { id } }).catch(err => {
-        console.log(err);
-      });
-    },
     clearSearch() {
       setTimeout(() => {
         this.result = "";

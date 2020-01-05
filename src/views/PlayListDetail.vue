@@ -58,7 +58,7 @@
     <div class="media-container">
       <div class="media-header">
         <div class="media-header-title">Top Tracks</div>
-        <a href="#" class="view-all" @click="goToTracks()">View all</a>
+        <a href="#" class="view-all" @click="goToTracks2">View all</a>
       </div>
       <trackList :shortFlag="shortFlag" :viewFull="viewFull"></trackList>
     </div>
@@ -68,29 +68,20 @@
 <script>
 import VHeader from "components/VHeader.vue";
 import TrackList from "./TrackList.vue";
-import { mapActions } from "vuex";
-
-import axios from "axios";
-
-let instance = axios.create({
-  baseURL: "http://localhost:3000",
-  timeout: 30000,
-  withCredentials: true
-});
+import mixins from "mixins/index.js";
+import { instance } from "mixins/index.js";
 
 export default {
+  mixins: [mixins],
   data() {
     return {
       shortFlag: false,
-      viewFull: true,
       playlist: [],
       height: 0,
       scrollTop: 0
     };
   },
   methods: {
-    ...mapActions(["setTrackListActions"]),
-    ...mapActions(["setViewFullActions"]),
     refreshArtist() {
       this.$emit("scroll-top");
 
@@ -102,6 +93,8 @@ export default {
           }
         })
         .then(res => {
+          console.log(res);
+
           let playlist = res.data.playlist;
           this.playlist = playlist;
           let tracks = [];

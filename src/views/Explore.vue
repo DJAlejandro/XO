@@ -50,13 +50,9 @@
 </template>
 
 <script>
-import axios from "axios";
 import VSlider from "components/VSlider.vue";
+import { instance } from "mixins/index.js";
 
-let instance = axios.create({
-  baseURL: "http://localhost:3000",
-  timeout: 30000
-});
 export default {
   data() {
     return {

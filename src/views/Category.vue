@@ -59,13 +59,13 @@
 </template>
 
 <script>
-import { mapState, mapActions } from "vuex";
 import VHeader from "components/VHeader.vue";
-
+import mixins from "mixins/index.js";
 const ALBUM = 1,
   PLAYLIST = 2,
   ARTIST = 3;
 export default {
+  mixins: [mixins],
   data() {
     return {
       paginate: ["languages"],
@@ -76,49 +76,18 @@ export default {
   components: {
     VHeader
   },
-  filters: {
-    subName: function(value) {
-      if (!value) return "";
-      let value2 = value.split(" ")[1];
-      if (!value2) return value.charAt(0).toUpperCase();
 
-      return value.charAt(0).toUpperCase() + value2.charAt(0).toUpperCase();
-    }
-  },
   methods: {
-    ...mapActions(["setFocusFlagActions"]),
-
-    goToAlbum(id) {
-      this.setFocusFlagActions(false);
-
-      this.$router.push({ path: "/album", query: { id } }).catch(err => {
-        console.log(err);
-      });
-    },
-    goToArtist(id) {
-      this.setFocusFlagActions(false);
-
-      this.$router.push({ path: "/artist", query: { id } }).catch(err => {
-        console.log(err);
-      });
-    },
-    goToPlayList(id) {
-      this.setFocusFlagActions(false);
-
-      this.$router.push({ path: "/play-list", query: { id } }).catch(err => {
-        console.log(err);
-      });
-    },
     goToTitle(id) {
       switch (this.type) {
         case 1:
-          this.goToAlbum(id);
+          this.goToAlbum(id, true);
           break;
         case 2:
-          this.goToPlayList(id);
+          this.goToPlayList(id, true);
           break;
         case 3:
-          this.goToArtist(id);
+          this.goToArtist(id, true);
           break;
         default:
           break;
@@ -127,22 +96,15 @@ export default {
     goToDesc(id) {
       switch (this.type) {
         case 1:
-          this.goToArtist(id);
+          this.goToArtist(id, true);
           break;
         case 2:
           break;
         default:
           break;
       }
-    }
-  },
-  computed: {
-    ...mapState({
-      categoryList: "categoryList"
-    })
-  },
-  watch: {
-    categoryList() {
+    },
+    changeType() {
       switch (this.categoryList.type) {
         case "album":
           this.type = ALBUM;
@@ -161,14 +123,22 @@ export default {
         default:
           break;
       }
+    }
+  },
+
+  watch: {
+    categoryList() {
+      this.changeType();
     },
     $route(to, from) {
       // 对路由变化作出响应...
+      this.changeType();
       this.$emit("scroll-top");
     }
   },
   mounted() {
     this.$emit("scroll-top");
+    this.changeType();
   }
 };
 </script>
