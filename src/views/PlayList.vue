@@ -2,7 +2,7 @@
   <div class="play-list-item">
     <div class="play-list-header">
       <h2 class="play-list-title">{{items.title}}</h2>
-      <a class="view-all" href="#" @click="viewAll">View all</a>
+      <a class="view-all" href="#" @click="view">View all</a>
     </div>
     <v-slider
       :swiperWidth="swiperWidth"
@@ -13,8 +13,8 @@
     >
       <template v-for="item in items.data">
         <swiper-slide>
-          <div class="home-slider-item">
-            <div class="home-slider-img-wrapper" @click="goToAlbum(item.id,false)">
+          <div class="home-slider-item" v-if="item">
+            <div class="home-slider-img-wrapper" @click="goTo(item.id)">
               <img :src="item.src+'?param=200y200'" :alt="item.title" class="item-img" />
               <div class="home-slider-overlay">
                 <span class="icon-more iconfont" @click.stop="go"></span>
@@ -23,7 +23,7 @@
               </div>
             </div>
             <div class="home-slider-content">
-              <span class="home-slider-content-text" @click="goToAlbum(item.id,false)">
+              <span class="home-slider-content-text" @click="goTo(item.id)">
                 <a>{{item.title}}</a>
               </span>
               <span class="home-slider-content-text">
@@ -66,7 +66,10 @@ export default {
   },
   methods: {
     go() {},
-    viewAll() {
+    goTo(id) {
+      this.$emit("go-to", id);
+    },
+    view() {
       this.$emit("view-all");
     }
   }

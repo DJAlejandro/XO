@@ -9,10 +9,10 @@
       <trackList :shortFlag="shortFlag" :viewFull="viewFull"></trackList>
     </div>
     <div class="play-list-wrapper">
-      <play-list :items="albums" @view-all="viewAll(1)" />
+      <play-list :items="albums" @view-all="viewAll(1,false)" @go-to="goTo($event,id,1)" />
     </div>
     <div class="play-list-wrapper">
-      <play-list :items="playLists" @view-all="viewAll(2)" />
+      <play-list :items="playLists" @view-all="viewAll(2,false)" @go-to="goTo($event,id,2)" />
     </div>
     <artists-list :artistsList="artistsList" :listFlag="listFlag" />
   </div>
@@ -57,28 +57,16 @@ export default {
       this.searchArtists();
       this.searchSongs();
     },
-    viewAll(type) {
-      if (type === 1) {
-        this.setFocusFlagActions(false);
-
-        this.$router
-          .push({ path: "/search/albums", query: { q: this.result } })
-          .catch(err => {});
-
-        this.setCategoryListActions({
-          type: "album",
-          playLists: this.albums2
-        });
-      } else if (type === 2) {
-        this.setFocusFlagActions(false);
-
-        this.$router
-          .push({ path: "/search/play-list", query: { q: this.result } })
-          .catch(err => {});
-        this.setCategoryListActions({
-          type: "play-list",
-          playLists: this.playLists2
-        });
+    goTo(id, $event, type) {
+      switch (type) {
+        case 1:
+          this.goToAlbum(id, false);
+          break;
+        case 2:
+          this.goToPlayList(id, false);
+          break;
+        default:
+          break;
       }
     }
   },

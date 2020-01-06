@@ -93,21 +93,10 @@ export default {
           }
         })
         .then(res => {
-          console.log(res);
-
           let playlist = res.data.playlist;
           this.playlist = playlist;
-          let tracks = [];
-          playlist.tracks.forEach(item => {
-            let { dt, name, id, ar, al } = item;
-            tracks.push({
-              time: dt,
-              name,
-              artists: ar,
-              album: al,
-              id
-            });
-          });
+          let tracks = this.serialData2(playlist.tracks);
+
           this.setTrackListActions(tracks);
         });
     }

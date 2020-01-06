@@ -63,13 +63,13 @@
       <trackList :shortFlag="shortFlag" :viewFull="viewFull"></trackList>
     </div>
     <div class="play-list-wrapper">
-      <play-list :items="albums" @view-all="viewAll(1)" />
+      <play-list :items="albums" @view-all="viewAll(1)" @go-to="goTo($event,id,1)" />
     </div>
     <div class="play-list-wrapper">
-      <play-list :items="eps" @view-all="viewAll(2)" />
+      <play-list :items="eps" @view-all="viewAll(2)" @go-to="goTo($event,id,1)" />
     </div>
     <div class="play-list-wrapper" v-if="others.length>0">
-      <play-list :items="others" @view-all="viewAll(3)" />
+      <play-list :items="others" @view-all="viewAll(3)" @go-to="goTo($event,id,1)" />
     </div>
     <artists-list :artistsList="artistsList" />
   </div>
@@ -102,32 +102,6 @@ export default {
     };
   },
   methods: {
-    serialData(data, tag) {
-      let arr = [];
-      data.forEach(function(item) {
-        tag ? (item = item.album) : (item = item);
-        let {
-          picUrl,
-          name: title,
-          type,
-          artists,
-          id,
-          artists: { name, id: subId }
-        } = item;
-
-        arr.push({
-          src: picUrl,
-          title,
-          artists,
-          type,
-          id,
-          desc: name,
-          subId
-        });
-      });
-      return arr;
-    },
-
     refreshArtist() {
       this.$emit("scroll-top");
 
@@ -152,17 +126,8 @@ export default {
         .then(res => {
           //获取歌手单曲
 
-          let tracks = [];
-          res.data.hotSongs.forEach(item => {
-            let { dt, name, id, ar, al } = item;
-            tracks.push({
-              time: dt,
-              name,
-              artists: ar,
-              album: al,
-              id
-            });
-          });
+          let tracks = this.serialData2(res.data.hotSongs);
+
           this.setTrackListActions(tracks);
         });
 
@@ -232,6 +197,18 @@ export default {
             type: "album",
             playLists: this.others2
           });
+          break;
+        default:
+          break;
+      }
+    },
+    goTo(id, $event, type) {
+      switch (type) {
+        case 1:
+          this.goToAlbum(id, false);
+          break;
+        case 2:
+          this.goToPlayList(id, false);
           break;
         default:
           break;

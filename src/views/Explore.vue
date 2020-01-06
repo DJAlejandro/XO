@@ -30,6 +30,7 @@
           class="category-paginate-item"
           v-for="playlist in paginated('languages')"
           :style="{backgroundImage: 'url('+playlist.src+'?param=360y360)'}"
+          @click="goToPlayList(playlist.id,false)"
         >
           <div class="category-item-content">
             <span class="category-item-content-text">{{playlist.name}}</span>
@@ -51,9 +52,13 @@
 
 <script>
 import VSlider from "components/VSlider.vue";
+
+import mixins from "mixins/index.js";
+
 import { instance } from "mixins/index.js";
 
 export default {
+  mixins: [mixins],
   data() {
     return {
       activeIndex1: 0,
@@ -85,15 +90,14 @@ export default {
         .then(res => {
           let arr = [];
           res.data.playlists.forEach(function(item) {
-            let { name, coverImgUrl, description } = item;
+            let { name, coverImgUrl, description, id } = item;
             arr.push({
+              id,
               name,
               src: coverImgUrl,
               desc: description
             });
           });
-
-          console.log(arr);
 
           this.playlists = arr;
         });
@@ -198,6 +202,7 @@ export default {
     height: 0;
     padding-bottom: 100%;
     border: #666 1px solid;
+    cursor: pointer;
     img {
       width: 100%;
     }

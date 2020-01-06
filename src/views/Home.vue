@@ -72,23 +72,7 @@ export default {
     };
   },
   methods: {
-    serialData(data, tag) {
-      let arr = [];
-      data.forEach(function(item) {
-        tag ? (item = item.album) : (item = item);
-        let { blurPicUrl, name, type, artists, id } = item;
-
-        arr.push({
-          src: blurPicUrl,
-          title: name,
-          artists,
-          type,
-          id
-        });
-      });
-      return arr;
-    },
-
+  
     serialData4(item) {
       let arr = [],
         singers = [];

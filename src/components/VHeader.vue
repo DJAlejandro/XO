@@ -13,7 +13,7 @@
           placeholder="Search"
           class="search-input"
           v-model="result"
-          @keyup="searchTimer"
+          @input="searchTimer"
           @focus="searchFocus"
           @keyup.enter="goToSearch"
         />
@@ -76,7 +76,7 @@
               <div class="search-box-header">
                 <span class="search-box-title">Albums</span>
                 <span class="search-box-all">
-                  <a @click="searchAlbums">Show All</a>
+                  <a @click="viewAll(1,true)">Show All</a>
                 </span>
               </div>
               <div class="search-box-content">
@@ -107,7 +107,7 @@
               <div class="search-box-header">
                 <span class="search-box-title">PlayLists</span>
                 <span class="search-box-all">
-                  <a @click="searchPlayLists">Show All</a>
+                  <a @click="viewAll(2,true)">Show All</a>
                 </span>
               </div>
               <div class="search-box-content">
@@ -153,7 +153,9 @@ export default {
   data() {
     return {
       result: "",
-      focusOnly: false
+      focusOnly: false,
+      albums2: [],
+      playLists2: []
     };
   },
   methods: {
@@ -165,14 +167,12 @@ export default {
     },
 
     searchTimer($event) {
-      if ($event.key !== "Enter") {
-        if (this.timer) {
-          clearTimeout(this.timer);
-        }
-        this.timer = setTimeout(() => {
-          this.search();
-        }, 100);
+      if (this.timer) {
+        clearTimeout(this.timer);
       }
+      this.timer = setTimeout(() => {
+        this.search();
+      }, 100);
     },
     search() {
       if (this.result) {

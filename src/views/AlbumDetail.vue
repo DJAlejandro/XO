@@ -93,22 +93,11 @@ export default {
         })
         .then(res => {
           let data = res.data;
-          let tracks = [];
           let {
             album: { blurPicUrl, name, artists, artist, publishTime },
             songs
           } = data;
-
-          songs.forEach(item => {
-            let { dt, name, id, ar, al } = item;
-            tracks.push({
-              time: dt,
-              name,
-              artists: ar,
-              id,
-              album: al
-            });
-          });
+          let tracks = this.serialData2(songs);
 
           this.artist = artist;
           this.albumList = {

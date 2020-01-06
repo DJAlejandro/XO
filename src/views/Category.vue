@@ -25,11 +25,7 @@
             <span class="category-item-content-text" @click="goToTitle(playlist.id)">
               <a>{{playlist.title}}</a>
             </span>
-            <span
-              class="category-item-content-text"
-              v-if="type!==3"
-              @click="goToDesc(playlist.subId)"
-            >
+            <span class="category-item-content-text" v-if="type!==3">
               <span class="category-last" v-if="type===2">Created By &nbsp;</span>
               <a class="category-last" v-if="type!==1">{{playlist.desc}}</a>
               <span v-if="type===1">
@@ -93,17 +89,19 @@ export default {
           break;
       }
     },
-    goToDesc(id) {
-      switch (this.type) {
-        case 1:
-          this.goToArtist(id, true);
-          break;
-        case 2:
-          break;
-        default:
-          break;
-      }
-    },
+    // goToDesc(id) {
+    //   console.log(11111111111111);
+
+    //   switch (this.type) {
+    //     case 1:
+    //       this.goToArtist(id, true);
+    //       break;
+    //     case 2:
+    //       break;
+    //     default:
+    //       break;
+    //   }
+    // },
     changeType() {
       switch (this.categoryList.type) {
         case "album":

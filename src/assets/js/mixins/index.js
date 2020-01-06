@@ -32,6 +32,95 @@ export default {
         ...mapActions(["setCategoryListActions"]),
         ...mapActions(["setResLengthActions"]),
         ...mapActions(["setCookieActions"]),
+        viewAll(type, retryFlag) {
+            if (type === 1) {
+                console.log(222222222222);
+
+                this.setFocusFlagActions(false);
+
+                this.$router
+                    .push({
+                        path: "/search/albums",
+                        query: {
+                            q: this.result
+                        }
+                    })
+                    .catch(err => {});
+                if (retryFlag) {
+                    this.searchAlbums(retryFlag)
+                } else {
+                    this.setCategoryListActions({
+                        type: "album",
+                        playLists: this.albums2
+                    });
+                }
+
+            } else if (type === 2) {
+                console.log(555555555555555);
+
+                this.setFocusFlagActions(false);
+                if (retryFlag) {
+                    this.searchPlayLists(retryFlag);
+                } else {
+                    this.setCategoryListActions({
+                        type: "play-list",
+                        playLists: this.playLists2
+                    });
+                }
+                this.$router
+                    .push({
+                        path: "/search/play-list",
+                        query: {
+                            q: this.result
+                        }
+                    })
+                    .catch(err => {});
+
+            }
+        },
+        serialData(data, tag) {
+            let arr = [];
+            data.forEach(function (item) {
+                tag ? (item = item.album) : (item = item);
+                let {
+                    blurPicUrl,
+                    name,
+                    type,
+                    artists,
+                    id
+                } = item;
+
+                arr.push({
+                    src: blurPicUrl,
+                    title: name,
+                    artists,
+                    type,
+                    id
+                });
+            });
+            return arr;
+        },
+        serialData2(data) {
+            let arr = [];
+            data.forEach(function (item) {
+                let {
+                    dt,
+                    name,
+                    id,
+                    ar,
+                    al
+                } = item;
+                arr.push({
+                    time: dt,
+                    name,
+                    artists: ar,
+                    id,
+                    album: al
+                });
+
+            });
+            return arr;
+        },
         goToAlbum(id, focusFlag) {
             if (focusFlag) {
                 this.setFocusFlagActions(false);
@@ -148,7 +237,7 @@ export default {
                                 artists,
                                 artist: {
                                     name,
-                                    id: subId
+                                    // id: subId
                                 }
                             } = item;
                             playLists.push({
@@ -162,7 +251,7 @@ export default {
                                 id,
                                 src: picUrl,
                                 desc: name,
-                                subId,
+                                // subId,
                                 artists
                             });
                         });
@@ -171,7 +260,14 @@ export default {
                             title: "Albums",
                             data: playLists
                         };
-                    });
+                        return res;
+                    }).then(res => {
+                        this.setCategoryListActions({
+                            type: "album",
+                            playLists: this.albums2
+                        });
+
+                    })
             }
         },
         searchPlayLists() {
@@ -216,7 +312,13 @@ export default {
                             title: "PlayLists",
                             data: playLists
                         };
-                    });
+                        return res;
+                    }).then(res => {
+                        this.setCategoryListActions({
+                            type: "play-list",
+                            playLists: this.playLists2
+                        });
+                    })
             }
         },
         searchArtists() {
