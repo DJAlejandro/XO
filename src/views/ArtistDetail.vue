@@ -1,5 +1,11 @@
 <template>
   <div class="artist-detail">
+    <div class="media-background">
+      <img :src="artist.img1v1Url" />
+    </div>
+    <div class="modal-portal-warpper" v-if="isModalOpen">
+      <modal-portal :modalData="modalData" @close-modal="closeModal"></modal-portal>
+    </div>
     <v-header></v-header>
     <div class="artist-header" ref="header">
       <div class="artist-img">
@@ -7,8 +13,10 @@
       </div>
       <div class="artist-content">
         <div class="artist-content-title">{{artist.name}}</div>
-        <div class="artist-content-info">{{artist.briefDesc}}</div>
-        <div class="artist-content-more">read more</div>
+        <div class="artist-content-desc">
+          {{artist.subDesc}}...
+          <span class="moreButton" @click="openModal">Read more</span>
+        </div>
         <div class="artist-content-controls">
           <button type="button" class="btn1">
             <span class="icon-play iconfont"></span>
@@ -76,9 +84,14 @@
 </template>
 
 <script>
+const ALBUM = 1,
+  PLAYLIST = 2,
+  ARTIST = 3;
 import ArtistsList from "./ArtistsList.vue";
 import PlayList from "./PlayList.vue";
 import VHeader from "components/VHeader.vue";
+import ModalPortal from "components/ModalPortal.vue";
+
 import TrackList from "./TrackList.vue";
 import mixins from "mixins/index.js";
 import { instance } from "mixins/index.js";
@@ -98,10 +111,18 @@ export default {
       scrollTop: 0,
       albums2: [],
       eps2: [],
-      others2: []
+      others2: [],
+      isModalOpen: false,
+      modalData: {}
     };
   },
   methods: {
+    openModal() {
+      this.isModalOpen = true;
+    },
+    closeModal() {
+      this.isModalOpen = false;
+    },
     refreshArtist() {
       this.$emit("scroll-top");
 
@@ -114,7 +135,18 @@ export default {
           }
         })
         .then(res => {
-          this.artist = res.data.artist;
+          let artist = res.data.artist;
+          let { briefDesc, img1v1Url, name } = artist;
+          let subDesc = briefDesc.substring(0, 100);
+          let description = briefDesc.split("\n");
+          this.modalData = {
+            description,
+            imgSrc: img1v1Url,
+            title: name,
+            type: ARTIST
+          };
+          artist.subDesc = subDesc;
+          this.artist = artist;
         });
 
       instance
@@ -219,7 +251,8 @@ export default {
     PlayList,
     ArtistsList,
     VHeader,
-    TrackList
+    TrackList,
+    ModalPortal
   },
   mounted() {
     this.refreshArtist();
@@ -257,6 +290,27 @@ export default {
   display: flex;
   flex-direction: column;
   position: relative;
+  .media-background {
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    position: absolute;
+    height: 100%;
+    z-index: -3;
+    transform: translateZ(0);
+    filter: blur(50px);
+
+    img {
+      width: 100%;
+      height: 100%;
+      opacity: 0.2;
+      position: absolute;
+      top: 0;
+      left: 0;
+      object-fit: cover;
+    }
+  }
   .artist-header {
     display: flex;
     margin: 80px 0 48px;
@@ -292,22 +346,24 @@ export default {
         color: #fff;
         @include ellipsis;
       }
-      .artist-content-info {
+      .artist-content-desc {
         color: #fff;
         font-size: 14px;
         line-height: 24px;
         text-align: left;
         width: 100%;
-        @include ellipsis2(3);
-        .artist-name {
-          color: #fff;
+        .moreButton {
+          color: #0ff;
+          margin: 0;
+          padding: 0;
+          cursor: pointer;
         }
       }
       .artist-content-more {
         margin-top: -10px;
         margin-bottom: 20px;
         padding-top: 10px;
-        background-color: #000;
+        background-color: rgba(0, 0, 0, 0.1);
         position: relative;
         z-index: 2;
       }
@@ -315,6 +371,7 @@ export default {
   }
   .artist-content-controls {
     display: flex;
+    margin-top: 10px;
     max-width: 530px;
     align-items: center;
 

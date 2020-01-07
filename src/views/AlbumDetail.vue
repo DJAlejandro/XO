@@ -3,6 +3,9 @@
     <div class="media-background">
       <img :src="albumList.src" />
     </div>
+    <div class="modal-portal-warpper" v-if="isModalOpen">
+      <modal-portal :modalData="modalData" @close-modal="closeModal"></modal-portal>
+    </div>
     <v-header></v-header>
     <div class="album-header" v-if="albumList!=null">
       <div class="album-img">
@@ -10,10 +13,23 @@
       </div>
       <div class="album-content">
         <div class="album-content-title">{{albumList.name}}</div>
+
+        <div class="album-content-desc">
+          {{albumList.subDesc}}...
+          <span class="moreButton" @click="openModal">Read more</span>
+        </div>
+
         <div class="album-content-info">
           <div class="album-content-text">
             by
-            <span v-for="artist in albumList.artists" class="artist-name">{{artist.name}}</span>
+            <span
+              v-for="(artist,index) in albumList.artists"
+              class="artist-name"
+              @click="goToArtist(artist.id)"
+            >
+              <span v-if="index!==0">,&nbsp;</span>
+              <a>{{artist.name}}</a>
+            </span>
           </div>
           <div class="album-content-text">
             <span class="time">Released {{time}}</span>
@@ -47,11 +63,16 @@
   </div>
 </template>
 <script>
+const ALBUM = 1,
+  PLAYLIST = 2,
+  ARTIST = 3;
 import { format } from "date-fns";
 
 import VHeader from "components/VHeader.vue";
 import ArtistsList from "./ArtistsList.vue";
 import TrackList from "./TrackList.vue";
+import ModalPortal from "components/ModalPortal.vue";
+
 import mixins from "mixins/index.js";
 import { instance } from "mixins/index.js";
 
@@ -62,13 +83,16 @@ export default {
       albumList: {},
       artist: {},
       artistsList: {},
-      shortFlag: true
+      shortFlag: true,
+      isModalOpen: false,
+      modalData: {}
     };
   },
   components: {
     VHeader,
     ArtistsList,
-    TrackList
+    TrackList,
+    ModalPortal
   },
   computed: {
     time() {
@@ -82,6 +106,12 @@ export default {
     }
   },
   methods: {
+    openModal() {
+      this.isModalOpen = true;
+    },
+    closeModal() {
+      this.isModalOpen = false;
+    },
     initAlbum() {
       this.$emit("scroll-top");
       let id = this.$route.query.id;
@@ -94,20 +124,33 @@ export default {
         .then(res => {
           let data = res.data;
           let {
-            album: { blurPicUrl, name, artists, artist, publishTime },
+            album: { picUrl, name, artists, artist, publishTime, description },
             songs
           } = data;
           let tracks = this.serialData2(songs);
+          let subDesc = description.substring(0, 100);
+          description = description.split("\n");
 
           this.artist = artist;
           this.albumList = {
-            src: blurPicUrl, //专辑封面
+            src: picUrl, //专辑封面
             name, //专辑名称
             artists, //专辑歌手
-            publishTime //发行时间
+            publishTime, //发行时间,
+            desc: description,
+            subDesc
           };
           this.setTrackListActions(tracks);
           this.relatedArtist(this.artist.id);
+
+          this.modalData = {
+            description,
+            imgSrc: picUrl,
+            title: name,
+            type: ALBUM,
+            artists
+          };
+          artist.subDesc = subDesc;
         });
     }
   },
@@ -183,6 +226,19 @@ export default {
         color: #fff;
         @include ellipsis;
       }
+      .album-content-desc {
+        color: #fff;
+        font-size: 14px;
+        line-height: 24px;
+        text-align: left;
+        width: 100%;
+        .moreButton {
+          color: #0ff;
+          margin: 0;
+          padding: 0;
+          cursor: pointer;
+        }
+      }
       .album-content-info {
         color: hsla(0, 0%, 100%, 0.5);
         margin-bottom: 20px;
@@ -192,6 +248,9 @@ export default {
         font-size: 16px;
         .artist-name {
           color: #fff;
+          a {
+            color: #fff;
+          }
         }
       }
       .album-content-controls {
