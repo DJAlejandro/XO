@@ -13,10 +13,10 @@
       </div>
       <div class="artist-content">
         <div class="artist-content-title">{{playlist.name}}</div>
-        <!-- <div class="artist-content-info">{{playlist.description}}</div> -->
         <div class="artist-content-desc">
-          {{playlist.subDesc}}...
-          <span class="moreButton" @click="openModal">Read more</span>
+          {{playlist.subDesc}}
+          <span v-if="playlist.descLength>100">...&nbsp;</span>
+          <span class="moreButton" @click="openModal" v-if="playlist.descLength>100">Read more</span>
         </div>
         <div class="artist-content-controls">
           <button type="button" class="btn1">
@@ -75,15 +75,12 @@
 </template>
 
 <script>
-const ALBUM = 1,
-  PLAYLIST = 2,
-  ARTIST = 3;
 import VHeader from "components/VHeader.vue";
 import TrackList from "./TrackList.vue";
 import ModalPortal from "components/ModalPortal.vue";
 
 import mixins from "mixins/index.js";
-import { instance } from "mixins/index.js";
+import { instance, ALBUM, PLAYLIST, ARTIST } from "mixins/index.js";
 
 export default {
   mixins: [mixins],
@@ -115,8 +112,6 @@ export default {
           }
         })
         .then(res => {
-          console.log(res);
-
           let playlist = res.data.playlist;
           let tracks = this.serialData2(playlist.tracks);
 
@@ -128,9 +123,12 @@ export default {
             name,
             creator: { nickname }
           } = playlist;
+          let descLength = description.length;
+
           let subDesc = description.substring(0, 100);
           description = description.split("\n");
           playlist.subDesc = subDesc;
+          playlist.descLength = descLength;
           this.playlist = playlist;
 
           this.modalData = {

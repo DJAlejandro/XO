@@ -25,14 +25,14 @@
             <span class="category-item-content-text" @click="goToTitle(playlist.id)">
               <a>{{playlist.title}}</a>
             </span>
-            <span class="category-item-content-text" v-if="type!==3">
-              <span class="category-last" v-if="type===2">Created By &nbsp;</span>
-              <a class="category-last" v-if="type!==1">{{playlist.desc}}</a>
-              <span v-if="type===1">
+            <span class="category-item-content-text" v-if="type!==ARTIST">
+              <span class="category-last" v-if="type===PLAYLIST">Created By &nbsp;</span>
+              <a class="category-last" v-if="type!==ALBUM">{{playlist.desc}}</a>
+              <span v-if="type===ALBUM">
                 <span
                   class="aritst category-last"
                   v-for="(aritst,index) in playlist.artists"
-                  @click="goToArtist(aritst.id)"
+                  @click="goToArtist($event,aritst.id)"
                 >
                   <i v-if="index!==0">,</i>
                   <a>{{aritst.name}}</a>
@@ -57,16 +57,18 @@
 <script>
 import VHeader from "components/VHeader.vue";
 import mixins from "mixins/index.js";
-const ALBUM = 1,
-  PLAYLIST = 2,
-  ARTIST = 3;
+import { instance, ALBUM, PLAYLIST, ARTIST } from "mixins/index.js";
+
 export default {
   mixins: [mixins],
   data() {
     return {
       paginate: ["languages"],
       type: 1,
-      isArtist: false
+      isArtist: false,
+      ALBUM,
+      PLAYLIST,
+      ARTIST
     };
   },
   components: {
@@ -89,19 +91,6 @@ export default {
           break;
       }
     },
-    // goToDesc(id) {
-    //   console.log(11111111111111);
-
-    //   switch (this.type) {
-    //     case 1:
-    //       this.goToArtist(id, true);
-    //       break;
-    //     case 2:
-    //       break;
-    //     default:
-    //       break;
-    //   }
-    // },
     changeType() {
       switch (this.categoryList.type) {
         case "album":

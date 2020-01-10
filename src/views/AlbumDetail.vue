@@ -15,8 +15,9 @@
         <div class="album-content-title">{{albumList.name}}</div>
 
         <div class="album-content-desc">
-          {{albumList.subDesc}}...
-          <span class="moreButton" @click="openModal">Read more</span>
+          {{albumList.subDesc}}
+          <span v-if="albumList.descLength>100">...&nbsp;</span>
+          <span class="moreButton" @click="openModal" v-if="albumList.descLength>100">Read more</span>
         </div>
 
         <div class="album-content-info">
@@ -25,7 +26,7 @@
             <span
               v-for="(artist,index) in albumList.artists"
               class="artist-name"
-              @click="goToArtist(artist.id)"
+              @click="goToArtist($event,artist.id)"
             >
               <span v-if="index!==0">,&nbsp;</span>
               <a>{{artist.name}}</a>
@@ -63,9 +64,6 @@
   </div>
 </template>
 <script>
-const ALBUM = 1,
-  PLAYLIST = 2,
-  ARTIST = 3;
 import { format } from "date-fns";
 
 import VHeader from "components/VHeader.vue";
@@ -74,7 +72,7 @@ import TrackList from "./TrackList.vue";
 import ModalPortal from "components/ModalPortal.vue";
 
 import mixins from "mixins/index.js";
-import { instance } from "mixins/index.js";
+import { instance, ALBUM, PLAYLIST, ARTIST } from "mixins/index.js";
 
 export default {
   mixins: [mixins],
@@ -128,6 +126,7 @@ export default {
             songs
           } = data;
           let tracks = this.serialData2(songs);
+          let descLength = description.length;
           let subDesc = description.substring(0, 100);
           description = description.split("\n");
 
@@ -138,7 +137,8 @@ export default {
             artists, //专辑歌手
             publishTime, //发行时间,
             desc: description,
-            subDesc
+            subDesc,
+            descLength
           };
           this.setTrackListActions(tracks);
           this.relatedArtist(this.artist.id);

@@ -14,8 +14,9 @@
       <div class="artist-content">
         <div class="artist-content-title">{{artist.name}}</div>
         <div class="artist-content-desc">
-          {{artist.subDesc}}...
-          <span class="moreButton" @click="openModal">Read more</span>
+          {{artist.subDesc}}
+          <span v-if="artist.descLength>100">...&nbsp;</span>
+          <span class="moreButton" @click="openModal" v-if="artist.descLength>100">Read more</span>
         </div>
         <div class="artist-content-controls">
           <button type="button" class="btn1">
@@ -71,22 +72,19 @@
       <trackList :shortFlag="shortFlag" :viewFull="viewFull"></trackList>
     </div>
     <div class="play-list-wrapper">
-      <play-list :items="albums" @view-all="viewAll(1)" @go-to="goTo($event,id,1)" />
+      <play-list :items="albums" @view-all="viewAll(1)" @go-to="goTo($event,ALBUM)" />
     </div>
     <div class="play-list-wrapper">
-      <play-list :items="eps" @view-all="viewAll(2)" @go-to="goTo($event,id,1)" />
+      <play-list :items="eps" @view-all="viewAll(2)" @go-to="goTo($event,ALBUM)" />
     </div>
     <div class="play-list-wrapper" v-if="others.length>0">
-      <play-list :items="others" @view-all="viewAll(3)" @go-to="goTo($event,id,1)" />
+      <play-list :items="others" @view-all="viewAll(3)" @go-to="goTo($event,ALBUM)" />
     </div>
     <artists-list :artistsList="artistsList" />
   </div>
 </template>
 
 <script>
-const ALBUM = 1,
-  PLAYLIST = 2,
-  ARTIST = 3;
 import ArtistsList from "./ArtistsList.vue";
 import PlayList from "./PlayList.vue";
 import VHeader from "components/VHeader.vue";
@@ -94,7 +92,7 @@ import ModalPortal from "components/ModalPortal.vue";
 
 import TrackList from "./TrackList.vue";
 import mixins from "mixins/index.js";
-import { instance } from "mixins/index.js";
+import { instance, ALBUM, PLAYLIST, ARTIST } from "mixins/index.js";
 
 export default {
   mixins: [mixins],
@@ -113,7 +111,10 @@ export default {
       eps2: [],
       others2: [],
       isModalOpen: false,
-      modalData: {}
+      modalData: {},
+      ALBUM,
+      PLAYLIST,
+      ARTIST
     };
   },
   methods: {
@@ -137,6 +138,8 @@ export default {
         .then(res => {
           let artist = res.data.artist;
           let { briefDesc, img1v1Url, name } = artist;
+          let descLength = briefDesc.length;
+
           let subDesc = briefDesc.substring(0, 100);
           let description = briefDesc.split("\n");
           this.modalData = {
@@ -146,6 +149,7 @@ export default {
             type: ARTIST
           };
           artist.subDesc = subDesc;
+          artist.descLength = descLength;
           this.artist = artist;
         });
 
@@ -234,12 +238,12 @@ export default {
           break;
       }
     },
-    goTo(id, $event, type) {
+    goTo(id, type) {
       switch (type) {
-        case 1:
+        case ALBUM:
           this.goToAlbum(id, false);
           break;
-        case 2:
+        case PLAYLIST:
           this.goToPlayList(id, false);
           break;
         default:

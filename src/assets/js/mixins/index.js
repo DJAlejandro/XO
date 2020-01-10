@@ -10,8 +10,17 @@ let instance = axios.create({
     timeout: 30000,
     withCredentials: true
 });
+
+const ALBUM = 1,
+    PLAYLIST = 2,
+    ARTIST = 3;
+
+
 export {
-    instance
+    instance,
+    ALBUM,
+    PLAYLIST,
+    ARTIST
 }
 export default {
     filters: {
@@ -32,10 +41,13 @@ export default {
         ...mapActions(["setCategoryListActions"]),
         ...mapActions(["setResLengthActions"]),
         ...mapActions(["setCookieActions"]),
+        ...mapActions(["setRouterHistoryLengthActions"]),
+        ...mapActions(["setIsBackActions"]),
+
+
+
         viewAll(type, retryFlag) {
             if (type === 1) {
-                console.log(222222222222);
-
                 this.setFocusFlagActions(false);
 
                 this.$router
@@ -56,7 +68,6 @@ export default {
                 }
 
             } else if (type === 2) {
-                console.log(555555555555555);
 
                 this.setFocusFlagActions(false);
                 if (retryFlag) {
@@ -132,7 +143,19 @@ export default {
                 }
             });
         },
-        goToArtist(id, focusFlag) {
+        goToArtist(event, id, focusFlag) {
+            if (event.target.disabled) { // 点击太频繁了
+                return
+            }
+            if (!event.target.disabled) {
+                event.target.disabled = true
+                setTimeout(() => {
+                    event.target.disabled = false
+                }, 1000)
+            }
+
+
+
             if (focusFlag) {
                 this.setFocusFlagActions(false);
             }
@@ -141,7 +164,11 @@ export default {
                 query: {
                     id
                 }
-            }).catch(err => {
+            }).then(res => {
+                console.log(1111111);
+
+            }).
+            catch(err => {
                 console.log(err);
             });
         },
@@ -401,7 +428,8 @@ export default {
             userCookie: "userCookie",
             trackList: "trackList",
             viewFull: "viewFull",
-            categoryList: "categoryList"
+            categoryList: "categoryList",
+            routerHistoryLength: "routerHistoryLength"
         })
     },
 }

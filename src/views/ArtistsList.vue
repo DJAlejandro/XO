@@ -13,7 +13,7 @@
     >
       <template v-for="item in artistsList.data">
         <swiper-slide>
-          <div class="home-slider-item" @click="goToArtist(item.id,false)">
+          <div class="home-slider-item" @click="goToArtist($event,item.id,false)">
             <div class="home-slider-img-wrapper">
               <img
                 :src="item.src+'?param=200y200'"

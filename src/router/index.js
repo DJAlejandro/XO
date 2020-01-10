@@ -3,6 +3,7 @@ import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
 import Category from '../views/Category.vue'
 const routerPush = VueRouter.prototype.push
+
 VueRouter.prototype.push = function push(location) {
     return routerPush.call(this, location).catch(error => error)
 }
@@ -16,6 +17,7 @@ const routes = [{
         path: '/',
         name: 'home',
         component: Home
+
     },
     {
         path: '/view/pages/explore',
@@ -72,7 +74,37 @@ const router = new VueRouter({
             x: 0,
             y: 0
         }
-    }
+    },
+
 })
 
+let len = 0;
+let routerArr = [];
+let isBack = false;
+router.beforeEach((to, from, next) => {
+    // len = router.app.$options.store.state.routerHistoryLength;
+    // console.log(to, from);
+    setTimeout(() => {
+
+        isBack = router.app.$options.store.state.isBack;
+        console.log(isBack);
+        if (isBack) {
+            // len = len - 1;
+            routerArr.pop()
+        } else {
+            // len = len + 1;
+            routerArr.push(to)
+        }
+        console.log(routerArr);
+        next();
+    }, 100);
+
+
+
+
+    // console.log(router.app.$options.store.state.routerHistoryLength);
+
+
+
+})
 export default router

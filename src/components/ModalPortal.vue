@@ -1,28 +1,28 @@
 <template>
-  <div class="modal-portal">
-    <div class="modal-portal-overlay" @click="closeBtn">
-      <div class="modal-portal-content">
+  <div class="modal-portal" @click="closeBtn">
+    <div class="modal-portal-overlay">
+      <div class="modal-portal-content" @click.stop>
         <div class="modal-header">
           <div class="modal-header-left">
             <img
               :src="modalData.imgSrc+'?param=100y100'"
-              :class="{round:modalData.type===3}"
+              :class="{round:modalData.type===ARTIST}"
               v-if="modalData.type"
             />
             <div class="modal-header-title">
               <div>{{modalData.title}}</div>
-              <div class="subtitle" v-if="modalData.type==2">
+              <div class="subtitle" v-if="modalData.type==PLAYLIST">
                 Created by
                 <span>{{modalData.nickname}}</span>
               </div>
-              <div class="subtitle" v-if="modalData.type==1">
+              <div class="subtitle" v-if="modalData.type==ALBUM">
                 by
                 <span v-for="(artist,index) in modalData.artists">
                   <span v-if="index!==0" class="artist-name">,&nbsp;</span>
                   <a class="artist-name">{{artist.name}}</a>
                 </span>
               </div>
-              <div class="subtitle" v-if="modalData.type==3">Biography</div>
+              <div class="subtitle" v-if="modalData.type==ARTIST">Biography</div>
             </div>
           </div>
           <div class="close-btn">
@@ -40,14 +40,16 @@
 </template>
 
 <script>
-const ALBUM = 1,
-  PLAYLIST = 2,
-  ARTIST = 3;
+import { ALBUM, PLAYLIST, ARTIST } from "mixins/index.js";
+
 export default {
   props: {
     modalData: {
       default: {},
-      type: Object
+      type: Object,
+      ALBUM,
+      PLAYLIST,
+      ARTIST
     }
   },
   methods: {

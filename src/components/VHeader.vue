@@ -10,7 +10,7 @@
         <span class="icon-search iconfont"></span>
         <input
           type="search"
-          placeholder="Search"
+          :placeholder="routerHistoryLength"
           class="search-input"
           v-model="result"
           @input="searchTimer"
@@ -38,7 +38,7 @@
                       Track By
                       <span
                         v-for="(artist,index) in song.ar"
-                        @click.stop="goToArtist(artist.id)"
+                        @click.stop="goToArtist($event,artist.id)"
                       >
                         <span v-if="index!==0">,</span>
                         <a>{{artist.name}}</a>
@@ -63,7 +63,7 @@
                     <div v-else>{{artist.name | subName}}</div>
                   </div>
                   <div class="search-box-title-group">
-                    <div class="title" @click.stop="goToArtist(artist.id,true)">
+                    <div class="title" @click.stop="goToArtist($event,artist.id,true)">
                       <a>{{artist.name}}</a>
                     </div>
                     <div class="sub-title">Artist</div>
@@ -76,7 +76,7 @@
               <div class="search-box-header">
                 <span class="search-box-title">Albums</span>
                 <span class="search-box-all">
-                  <a @click="viewAll(1,true)">Show All</a>
+                  <a @click="viewAll(ALBUM,true)">Show All</a>
                 </span>
               </div>
               <div class="search-box-content">
@@ -92,7 +92,7 @@
                       Album By
                       <span
                         v-for="(artist,index) in album.artists"
-                        @click.stop="goToArtist(artist.id,true)"
+                        @click.stop="goToArtist($event,artist.id,true)"
                       >
                         <span v-if="index!==0">,</span>
                         <a>{{artist.name}}</a>
@@ -107,7 +107,7 @@
               <div class="search-box-header">
                 <span class="search-box-title">PlayLists</span>
                 <span class="search-box-all">
-                  <a @click="viewAll(2,true)">Show All</a>
+                  <a @click="viewAll(PLAYLIST,true)">Show All</a>
                 </span>
               </div>
               <div class="search-box-content">
@@ -146,7 +146,7 @@
 
 <script>
 import mixins from "mixins/index.js";
-import { instance } from "mixins/index.js";
+import { instance, ALBUM, PLAYLIST, ARTIST } from "mixins/index.js";
 export default {
   mixins: [mixins],
   props: ["tag"],
@@ -155,14 +155,19 @@ export default {
       result: "",
       focusOnly: false,
       albums2: [],
-      playLists2: []
+      playLists2: [],
+      ALBUM,
+      PLAYLIST,
+      ARTIST
     };
   },
   methods: {
     back() {
+      this.setIsBackActions(true);
       this.$router.go(-1);
     },
     forward() {
+      this.setIsBackActions(false);
       this.$router.go(1);
     },
 

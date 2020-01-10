@@ -30,7 +30,7 @@
                 <span
                   class="aritst"
                   v-for="(aritst,index) in item.artists"
-                  @click="goToArtist(aritst.id,false)"
+                  @click="goToArtist($event,aritst.id,false)"
                 >
                   <i v-if="index!==0">,</i>
                   <a>{{aritst.name}}</a>

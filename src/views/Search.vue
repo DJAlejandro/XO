@@ -9,10 +9,14 @@
       <trackList :shortFlag="shortFlag" :viewFull="viewFull"></trackList>
     </div>
     <div class="play-list-wrapper">
-      <play-list :items="albums" @view-all="viewAll(1,false)" @go-to="goTo($event,id,1)" />
+      <play-list :items="albums" @view-all="viewAll(ALBUM,false)" @go-to="goTo($event,ALBUM)" />
     </div>
     <div class="play-list-wrapper">
-      <play-list :items="playLists" @view-all="viewAll(2,false)" @go-to="goTo($event,id,2)" />
+      <play-list
+        :items="playLists"
+        @view-all="viewAll(PLAYLIST,false)"
+        @go-to="goTo($event,PLAYLIST)"
+      />
     </div>
     <artists-list :artistsList="artistsList" :listFlag="listFlag" />
   </div>
@@ -24,7 +28,7 @@ import PlayList from "./PlayList.vue";
 import ArtistsList from "./ArtistsList.vue";
 import TrackList from "./TrackList.vue";
 import mixins from "mixins/index.js";
-import { instance } from "mixins/index.js";
+import { instance, ALBUM, PLAYLIST, ARTIST } from "mixins/index.js";
 export default {
   mixins: [mixins],
   data() {
@@ -38,7 +42,10 @@ export default {
       artists: {},
       albums: {},
       albums2: [],
-      playLists2: []
+      playLists2: [],
+      ALBUM,
+      PLAYLIST,
+      ARTIST
     };
   },
 
@@ -57,7 +64,7 @@ export default {
       this.searchArtists();
       this.searchSongs();
     },
-    goTo(id, $event, type) {
+    goTo(id, type) {
       switch (type) {
         case 1:
           this.goToAlbum(id, false);

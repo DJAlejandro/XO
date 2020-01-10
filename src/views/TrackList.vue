@@ -27,7 +27,7 @@
       <div class="media-title" v-if="track.name">{{track.name}}</div>
       <div class="media-artist">
         <a href="#">
-          <span v-for="(artist,index) in track.artists" @click="goToArtist(artist.id,true)">
+          <span v-for="(artist,index) in track.artists" @click="goToArtist($event,artist.id,true)">
             <span v-if="index!==0">,</span>
             {{artist.name}}
           </span>
