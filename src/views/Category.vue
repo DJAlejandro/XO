@@ -13,16 +13,16 @@
             <img
               :src="playlist.src+'?param=360y360'"
               v-if="playlist.src"
-              @click="goToTitle(playlist.id)"
+              @click="goToTitle($event,playlist.id)"
             />
             <div
               v-else
               class="sub-name"
-              @click="goToTitle(playlist.id)"
+              @click="goToTitle($event,playlist.id)"
             >{{playlist.title | subName}}</div>
           </div>
           <div class="category-item-content">
-            <span class="category-item-content-text" @click="goToTitle(playlist.id)">
+            <span class="category-item-content-text" @click="goToTitle($event,playlist.id)">
               <a>{{playlist.title}}</a>
             </span>
             <span class="category-item-content-text" v-if="type!==ARTIST">
@@ -33,6 +33,7 @@
                   class="aritst category-last"
                   v-for="(aritst,index) in playlist.artists"
                   @click="goToArtist($event,aritst.id)"
+                  v-preventReClick
                 >
                   <i v-if="index!==0">,</i>
                   <a>{{aritst.name}}</a>
@@ -76,16 +77,16 @@ export default {
   },
 
   methods: {
-    goToTitle(id) {
+    goToTitle(event, id) {
       switch (this.type) {
         case 1:
-          this.goToAlbum(id, true);
+          this.goToAlbum(event, id, true);
           break;
         case 2:
-          this.goToPlayList(id, true);
+          this.goToPlayList(event, id, true);
           break;
         case 3:
-          this.goToArtist(id, true);
+          this.goToArtist(event, id, true);
           break;
         default:
           break;

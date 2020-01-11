@@ -18,3 +18,17 @@ new Vue({
 
 }).$mount('#app')
 
+Vue.directive('preventReClick', {
+    inserted(el, binding) {
+        el.addEventListener('click', (event) => {
+            console.log(event.target);
+
+            if (!event.target.disabled) {
+                event.target.disabled = true
+                setTimeout(() => {
+                    event.target.disabled = false
+                }, binding.value || 1000)
+            }
+        })
+    }
+})

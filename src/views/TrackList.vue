@@ -27,13 +27,22 @@
       <div class="media-title" v-if="track.name">{{track.name}}</div>
       <div class="media-artist">
         <a href="#">
-          <span v-for="(artist,index) in track.artists" @click="goToArtist($event,artist.id,true)">
+          <span
+            v-for="(artist,index) in track.artists"
+            @click="goToArtist($event,artist.id,true)"
+            v-preventReClick
+          >
             <span v-if="index!==0">,</span>
             {{artist.name}}
           </span>
         </a>
       </div>
-      <div class="media-album" v-if="viewFull" @click="goToAlbum(track.album.id,true)">
+      <div
+        class="media-album"
+        v-if="viewFull"
+        @click="goToAlbum($event,track.album.id,true)"
+        v-preventReClick
+      >
         <a href="#">{{track.album.name}}</a>
       </div>
       <div class="media-time">{{InstoreTime(track.time)}}</div>

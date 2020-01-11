@@ -46,7 +46,11 @@ export default {
 
 
 
-        viewAll(type, retryFlag) {
+        viewAll(event, type, retryFlag) {
+            if (event.target.disabled) { // 点击太频繁了
+                console.log('点击太频繁了');
+                return
+            }
             if (type === 1) {
                 this.setFocusFlagActions(false);
 
@@ -132,10 +136,16 @@ export default {
             });
             return arr;
         },
-        goToAlbum(id, focusFlag) {
+        goToAlbum(event, id, focusFlag) {
+            // if (event.target.disabled) { // 点击太频繁了
+            //     console.log('点击太频繁了');
+            //     return
+            // }
             if (focusFlag) {
                 this.setFocusFlagActions(false);
             }
+            this.setIsBackActions(false);
+
             this.$router.push({
                 path: "/album",
                 query: {
@@ -145,20 +155,23 @@ export default {
         },
         goToArtist(event, id, focusFlag) {
             if (event.target.disabled) { // 点击太频繁了
+                console.log('点击太频繁了');
                 return
             }
-            if (!event.target.disabled) {
-                event.target.disabled = true
-                setTimeout(() => {
-                    event.target.disabled = false
-                }, 1000)
-            }
+            // if (!event.target.disabled) {
+            //     event.target.disabled = true
+            //     setTimeout(() => {
+            //         event.target.disabled = false
+            //     }, 10000)
+            // }
 
 
 
             if (focusFlag) {
                 this.setFocusFlagActions(false);
             }
+            this.setIsBackActions(false);
+
             this.$router.push({
                 path: "/artist",
                 query: {
@@ -172,10 +185,16 @@ export default {
                 console.log(err);
             });
         },
-        goToPlayList(id, focusFlag) {
+        goToPlayList(event, id, focusFlag) {
+            if (event.target.disabled) { // 点击太频繁了
+                console.log('点击太频繁了');
+                return
+            }
             if (focusFlag) {
                 this.setFocusFlagActions(false);
             }
+            this.setIsBackActions(false);
+
             this.$router.push({
                 path: "/play-list",
                 query: {
@@ -185,7 +204,11 @@ export default {
                 console.log(err);
             });
         },
-        goToTracks() {
+        goToTracks(event) {
+            if (event.target.disabled) { // 点击太频繁了
+                console.log('点击太频繁了');
+                return
+            }
             this.searchSongs()
             this.setViewFullActions(false);
             this.setFocusFlagActions(false);
@@ -199,7 +222,11 @@ export default {
                 })
                 .catch(err => {});
         },
-        goToTracks2() {
+        goToTracks2(event) {
+            if (event.target.disabled) { // 点击太频繁了
+                console.log('点击太频繁了');
+                return
+            }
             let id = this.$route.query.id;
             this.setViewFullActions(true);
 

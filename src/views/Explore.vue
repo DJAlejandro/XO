@@ -30,7 +30,8 @@
           class="category-paginate-item"
           v-for="playlist in paginated('languages')"
           :style="{backgroundImage: 'url('+playlist.src+'?param=360y360)'}"
-          @click="goToPlayList(playlist.id,false)"
+          @click="goToPlayList($event,playlist.id,false)"
+          v-preventReClick
         >
           <div class="category-item-content">
             <span class="category-item-content-text">{{playlist.name}}</span>

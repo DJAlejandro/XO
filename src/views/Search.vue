@@ -4,7 +4,7 @@
     <div class="media-container">
       <div class="media-header">
         <div class="media-header-title">Top Tracks</div>
-        <a href="#" class="view-all" @click="goToTracks()">View all</a>
+        <a href="#" class="view-all" @click="goToTracks($event)" v-preventReClick>View all</a>
       </div>
       <trackList :shortFlag="shortFlag" :viewFull="viewFull"></trackList>
     </div>
@@ -64,13 +64,13 @@ export default {
       this.searchArtists();
       this.searchSongs();
     },
-    goTo(id, type) {
+    goTo(event, type) {
       switch (type) {
-        case 1:
-          this.goToAlbum(id, false);
+        case ALBUM:
+          this.goToAlbum(event.event, event.id, false);
           break;
-        case 2:
-          this.goToPlayList(id, false);
+        case PLAYLIST:
+          this.goToPlayList(event.event, event.id, false);
           break;
         default:
           break;

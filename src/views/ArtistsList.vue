@@ -2,7 +2,7 @@
   <div class="artist-list-item">
     <div class="artist-list-header">
       <h2 class="artist-list-title">{{artistsList.title}}</h2>
-      <a class="view-all" @click="goToArtists">View all</a>
+      <a class="view-all" @click="goToArtists($event)" v-preventReClick>View all</a>
     </div>
     <v-slider
       :swiperWidth="swiperWidth"
@@ -13,7 +13,7 @@
     >
       <template v-for="item in artistsList.data">
         <swiper-slide>
-          <div class="home-slider-item" @click="goToArtist($event,item.id,false)">
+          <div class="home-slider-item" @click="goToArtist($event,item.id,false)" v-preventReClick>
             <div class="home-slider-img-wrapper">
               <img
                 :src="item.src+'?param=200y200'"
@@ -74,7 +74,12 @@ export default {
   },
   methods: {
     go() {},
-    goToArtists() {
+    goToArtists(event) {
+      if (event.target.disabled) {
+        // 点击太频繁了
+        console.log("点击太频繁了");
+        return;
+      }
       if (this.listFlag) {
         this.setFocusFlagActions(false);
         this.$router

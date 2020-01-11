@@ -2,7 +2,7 @@
   <div class="play-list-item">
     <div class="play-list-header">
       <h2 class="play-list-title">{{items.title}}</h2>
-      <a class="view-all" href="#" @click="view">View all</a>
+      <a class="view-all" href="#" @click="view($event)" v-preventReClick>View all</a>
     </div>
     <v-slider
       :swiperWidth="swiperWidth"
@@ -14,7 +14,7 @@
       <template v-for="item in items.data">
         <swiper-slide>
           <div class="home-slider-item" v-if="item">
-            <div class="home-slider-img-wrapper" @click="goTo(item.id)">
+            <div class="home-slider-img-wrapper" @click="goTo($event,item.id)" v-preventReClick>
               <img :src="item.src+'?param=200y200'" :alt="item.title" class="item-img" />
               <div class="home-slider-overlay">
                 <span class="icon-more iconfont" @click.stop="go"></span>
@@ -23,7 +23,7 @@
               </div>
             </div>
             <div class="home-slider-content">
-              <span class="home-slider-content-text" @click="goTo(item.id)">
+              <span class="home-slider-content-text" @click="goTo($event,item.id)" v-preventReClick>
                 <a>{{item.title}}</a>
               </span>
               <span class="home-slider-content-text">
@@ -31,6 +31,7 @@
                   class="aritst"
                   v-for="(aritst,index) in item.artists"
                   @click="goToArtist($event,aritst.id,false)"
+                  v-preventReClick
                 >
                   <i v-if="index!==0">,</i>
                   <a>{{aritst.name}}</a>
@@ -66,10 +67,24 @@ export default {
   },
   methods: {
     go() {},
-    goTo(id) {
-      this.$emit("go-to", id);
+    goTo(event, id) {
+      console.log(id);
+
+      if (event.target.disabled) {
+        // 点击太频繁了
+        console.log("点击太频繁了");
+        return;
+      }
+      this.$emit("go-to", { event, id });
     },
-    view() {
+    view(event) {
+      // console.log(event.target.disabled);
+
+      // if (event.target.disabled) {
+      //   // 点击太频繁了
+      //   console.log("点击太频繁了");
+      //   return;
+      // }
       this.$emit("view-all");
     }
   }

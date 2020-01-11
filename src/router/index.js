@@ -90,13 +90,18 @@ router.beforeEach((to, from, next) => {
         console.log(isBack);
         if (isBack) {
             // len = len - 1;
-            routerArr.pop()
+            if (routerArr.length > 1) {
+                routerArr.pop()
+            }
         } else {
             // len = len + 1;
             routerArr.push(to)
         }
         console.log(routerArr);
-        next();
+        if (routerArr.length >= 1) {
+
+            next();
+        }
     }, 100);
 
 

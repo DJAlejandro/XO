@@ -67,7 +67,7 @@
     <div class="media-container">
       <div class="media-header">
         <div class="media-header-title">Top Tracks</div>
-        <a href="#" class="view-all" @click="goToTracks2">View all</a>
+        <a href="#" class="view-all" @click="goToTracks2($event)" v-preventReClick>View all</a>
       </div>
       <trackList :shortFlag="shortFlag" :viewFull="viewFull"></trackList>
     </div>

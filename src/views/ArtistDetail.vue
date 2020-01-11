@@ -67,7 +67,7 @@
     <div class="media-container">
       <div class="media-header">
         <div class="media-header-title">Top Tracks</div>
-        <a href="#" class="view-all" @click="goToTracks2()">View all</a>
+        <a href="#" class="view-all" @click="goToTracks2($event)" v-preventReClick>View all</a>
       </div>
       <trackList :shortFlag="shortFlag" :viewFull="viewFull"></trackList>
     </div>
@@ -214,6 +214,7 @@ export default {
     viewAll(type) {
       switch (type) {
         case 1:
+          this.setIsBackActions(false);
           this.$router.push({ path: "/artist/albums" }).catch(err => {});
           this.setCategoryListActions({
             type: "album",
@@ -221,6 +222,8 @@ export default {
           });
           break;
         case 2:
+          this.setIsBackActions(false);
+
           this.$router.push({ path: "/artist/eps" }).catch(err => {});
           this.setCategoryListActions({
             type: "album",
@@ -228,6 +231,8 @@ export default {
           });
           break;
         case 3:
+          this.setIsBackActions(false);
+
           this.$router.push({ path: "/artist/others" }).catch(err => {});
           this.setCategoryListActions({
             type: "album",
@@ -238,13 +243,14 @@ export default {
           break;
       }
     },
-    goTo(id, type) {
+    goTo(event, type) {
+
       switch (type) {
         case ALBUM:
-          this.goToAlbum(id, false);
+          this.goToAlbum(event.event, event.id, false);
           break;
         case PLAYLIST:
-          this.goToPlayList(id, false);
+          this.goToPlayList(event.event, event.id, false);
           break;
         default:
           break;

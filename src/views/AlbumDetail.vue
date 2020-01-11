@@ -27,6 +27,7 @@
               v-for="(artist,index) in albumList.artists"
               class="artist-name"
               @click="goToArtist($event,artist.id)"
+              v-preventReClick
             >
               <span v-if="index!==0">,&nbsp;</span>
               <a>{{artist.name}}</a>

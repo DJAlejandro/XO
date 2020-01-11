@@ -2,8 +2,8 @@
   <div class="content-header">
     <div class="header-container">
       <div class="header-goto">
-        <span class="icon-back iconfont" @click="back"></span>
-        <span class="icon-forward iconfont" @click="forward"></span>
+        <span class="icon-back iconfont" @click="back($event)" v-preventReClick></span>
+        <span class="icon-forward iconfont" @click="forward($event)" v-preventReClick></span>
       </div>
       <div class="header-content">{{tag}}</div>
       <div class="header-search" @click.stop :class="{focus:focusOnly}">
@@ -23,7 +23,7 @@
             <section v-if="searchList!=null">
               <div class="search-box-header">
                 <span class="search-box-title">Tracks</span>
-                <span class="search-box-all" @click="goToTracks()">
+                <span class="search-box-all" @click="goToTracks($event)" v-preventReClick>
                   <a>Show All</a>
                 </span>
               </div>
@@ -39,6 +39,7 @@
                       <span
                         v-for="(artist,index) in song.ar"
                         @click.stop="goToArtist($event,artist.id)"
+                        v-preventReClick
                       >
                         <span v-if="index!==0">,</span>
                         <a>{{artist.name}}</a>
@@ -63,7 +64,11 @@
                     <div v-else>{{artist.name | subName}}</div>
                   </div>
                   <div class="search-box-title-group">
-                    <div class="title" @click.stop="goToArtist($event,artist.id,true)">
+                    <div
+                      class="title"
+                      @click.stop="goToArtist($event,artist.id,true)"
+                      v-preventReClick
+                    >
                       <a>{{artist.name}}</a>
                     </div>
                     <div class="sub-title">Artist</div>
@@ -76,7 +81,7 @@
               <div class="search-box-header">
                 <span class="search-box-title">Albums</span>
                 <span class="search-box-all">
-                  <a @click="viewAll(ALBUM,true)">Show All</a>
+                  <a @click="viewAll($event,ALBUM,true)" v-preventReClick>Show All</a>
                 </span>
               </div>
               <div class="search-box-content">
@@ -85,7 +90,11 @@
                     <img :src="album.picUrl+'?param=50y50'" alt />
                   </div>
                   <div class="search-box-title-group">
-                    <div class="title" @click.stop="goToAlbum(album.id,true)">
+                    <div
+                      class="title"
+                      @click.stop="goToAlbum($event,album.id,true)"
+                      v-preventReClick
+                    >
                       <a>{{album.name}}</a>
                     </div>
                     <div class="sub-title">
@@ -93,6 +102,7 @@
                       <span
                         v-for="(artist,index) in album.artists"
                         @click.stop="goToArtist($event,artist.id,true)"
+                        v-preventReClick
                       >
                         <span v-if="index!==0">,</span>
                         <a>{{artist.name}}</a>
@@ -107,7 +117,7 @@
               <div class="search-box-header">
                 <span class="search-box-title">PlayLists</span>
                 <span class="search-box-all">
-                  <a @click="viewAll(PLAYLIST,true)">Show All</a>
+                  <a @click="viewAll($event,PLAYLIST,true)" v-preventReClick>Show All</a>
                 </span>
               </div>
               <div class="search-box-content">
@@ -115,12 +125,16 @@
                   <div class="image">
                     <img
                       :src="playList.coverImgUrl+'?param=50y50'"
-                      @click="goToPlayList(playList.id,true)"
+                      @click="goToPlayList($event,playList.id,true)"
+                      v-preventReClick
                     />
                   </div>
                   <div class="search-box-title-group">
                     <div class="title">
-                      <a @click="goToPlayList(playList.id,true)">{{playList.name}}</a>
+                      <a
+                        @click="goToPlayList($event,playList.id,true)"
+                        v-preventReClick
+                      >{{playList.name}}</a>
                     </div>
                     <div class="sub-title">
                       PlayList By
