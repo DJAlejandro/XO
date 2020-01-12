@@ -78,13 +78,13 @@ export default {
       this.$emit("go-to", { event, id });
     },
     view(event) {
-      // console.log(event.target.disabled);
+      console.log(event.target.disabled);
 
-      // if (event.target.disabled) {
-      //   // 点击太频繁了
-      //   console.log("点击太频繁了");
-      //   return;
-      // }
+      if (event.target.disabled) {
+        // 点击太频繁了
+        console.log("点击太频繁了");
+        return;
+      }
       this.$emit("view-all");
     }
   }

@@ -177,11 +177,21 @@ export default {
   },
   methods: {
     back() {
-      this.setIsBackActions(true);
+      if (event.target.disabled) {
+        // 点击太频繁了
+        console.log("点击太频繁了");
+        return;
+      }
+      this.setIsBackActions(1);
       this.$router.go(-1);
     },
     forward() {
-      this.setIsBackActions(false);
+      if (event.target.disabled) {
+        // 点击太频繁了
+        console.log("点击太频繁了");
+        return;
+      }
+      this.setIsBackActions(2);
       this.$router.go(1);
     },
 
@@ -204,6 +214,7 @@ export default {
           })
           .then(res => {
             //获取歌手单曲
+            console.log(res);
 
             let resLength = res.data.result.order.length;
             this.setResLengthActions(resLength);
@@ -253,6 +264,8 @@ export default {
       }, 30);
     },
     goToSearch() {
+      this.setIsBackActions(0);
+
       this.$router
         .push({ path: "/search", query: { q: this.result } })
         .catch(err => {

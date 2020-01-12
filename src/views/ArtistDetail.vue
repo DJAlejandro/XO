@@ -214,7 +214,7 @@ export default {
     viewAll(type) {
       switch (type) {
         case 1:
-          this.setIsBackActions(false);
+          this.setIsBackActions(0);
           this.$router.push({ path: "/artist/albums" }).catch(err => {});
           this.setCategoryListActions({
             type: "album",
@@ -222,7 +222,7 @@ export default {
           });
           break;
         case 2:
-          this.setIsBackActions(false);
+          this.setIsBackActions(0);
 
           this.$router.push({ path: "/artist/eps" }).catch(err => {});
           this.setCategoryListActions({
@@ -231,7 +231,7 @@ export default {
           });
           break;
         case 3:
-          this.setIsBackActions(false);
+          this.setIsBackActions(0);
 
           this.$router.push({ path: "/artist/others" }).catch(err => {});
           this.setCategoryListActions({

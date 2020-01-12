@@ -80,6 +80,8 @@ export default {
         console.log("点击太频繁了");
         return;
       }
+            this.setIsBackActions(0);
+
       if (this.listFlag) {
         this.setFocusFlagActions(false);
         this.$router

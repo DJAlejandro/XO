@@ -51,6 +51,8 @@ export default {
                 console.log('点击太频繁了');
                 return
             }
+            this.setIsBackActions(0);
+
             if (type === 1) {
                 this.setFocusFlagActions(false);
 
@@ -137,14 +139,14 @@ export default {
             return arr;
         },
         goToAlbum(event, id, focusFlag) {
-            // if (event.target.disabled) { // 点击太频繁了
-            //     console.log('点击太频繁了');
-            //     return
-            // }
+            if (event.target.disabled) { // 点击太频繁了
+                console.log('点击太频繁了');
+                return
+            }
             if (focusFlag) {
                 this.setFocusFlagActions(false);
             }
-            this.setIsBackActions(false);
+            this.setIsBackActions(0);
 
             this.$router.push({
                 path: "/album",
@@ -158,19 +160,10 @@ export default {
                 console.log('点击太频繁了');
                 return
             }
-            // if (!event.target.disabled) {
-            //     event.target.disabled = true
-            //     setTimeout(() => {
-            //         event.target.disabled = false
-            //     }, 10000)
-            // }
-
-
-
             if (focusFlag) {
                 this.setFocusFlagActions(false);
             }
-            this.setIsBackActions(false);
+            this.setIsBackActions(0);
 
             this.$router.push({
                 path: "/artist",
@@ -193,7 +186,7 @@ export default {
             if (focusFlag) {
                 this.setFocusFlagActions(false);
             }
-            this.setIsBackActions(false);
+            this.setIsBackActions(0);
 
             this.$router.push({
                 path: "/play-list",
@@ -212,6 +205,7 @@ export default {
             this.searchSongs()
             this.setViewFullActions(false);
             this.setFocusFlagActions(false);
+            this.setIsBackActions(0);
 
             this.$router
                 .push({
@@ -229,6 +223,7 @@ export default {
             }
             let id = this.$route.query.id;
             this.setViewFullActions(true);
+            this.setIsBackActions(0);
 
             this.$router
                 .push({

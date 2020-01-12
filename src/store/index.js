@@ -13,7 +13,7 @@ export default new Vuex.Store({
         focusFlag: false,
         resLength: 0,
         categoryList: [{}],
-        isBack: false
+        isBack: 0
     },
     mutations: {
         setCookie(state, data) {
@@ -37,7 +37,9 @@ export default new Vuex.Store({
         setCategoryList(state, data) {
             state.categoryList = data
         },
-
+        setResLength(state, data) {
+            state.resLength = data
+        },
         setIsBack(state, data) {
             state.isBack = data
         },
@@ -107,14 +109,7 @@ export default new Vuex.Store({
                 }, 100)
             })
         },
-        setRouterHistoryLengthActions(context, data) {
-            return new Promise((resolve, reject) => {
-                setTimeout(() => {
-                    context.commit('setRouterHistoryLength', data)
-                    resolve()
-                }, 100)
-            })
-        },
+
         setIsBackActions(context, data) {
             return new Promise((resolve, reject) => {
                 setTimeout(() => {
