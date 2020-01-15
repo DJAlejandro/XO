@@ -15,7 +15,6 @@ new Vue({
     router,
     store,
     render: h => h(App),
-
 }).$mount('#app')
 
 Vue.directive('preventReClick', {
@@ -25,7 +24,7 @@ Vue.directive('preventReClick', {
                 event.target.disabled = true
                 setTimeout(() => {
                     event.target.disabled = false
-                }, binding.value || 1000)
+                }, binding.value || 100)
             }
         })
     }

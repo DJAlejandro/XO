@@ -77,48 +77,65 @@ const router = new VueRouter({
     },
 
 })
-const REPLACE = 0,
+const RELOAD = -1,
+    REPLACE = 0,
     BACK = 1,
     FORWARD = 2;
-let len = 0;
-let routerArr = [];
-let currentIndex = 0;
-let isBack = false;
-router.beforeEach((to, from, next) => {
-    setTimeout(() => {
-        isBack = router.app.$options.store.state.isBack;
-        if (isBack === REPLACE) {
-            if (routerArr.length === 0) {
-                routerArr.push(to.query.id);
-                currentIndex = 0;
-            } else if (routerArr.length - 1 === currentIndex) {
-                routerArr.push(to.query.id);
+let routerArr = [{}],
+    currentIndex = 0;
 
+router.beforeEach((to, from, next) => {
+
+    setTimeout(() => {
+        let isBack = router.app.$options.store.state.isBack;
+        if (isBack === RELOAD) {
+            localStorage.setItem('currentIndex', 'RELOAD')
+            currentIndex = 1;
+            next()
+        }
+        if (isBack === REPLACE) {
+            if (routerArr.length === currentIndex) {
+                routerArr.push(to.query.id);
+                localStorage.setItem('currentIndex', 'LAST')
                 currentIndex++;
             } else {
                 routerArr = routerArr.slice(0, currentIndex + 1)
                 routerArr.push(to.query.id);
                 currentIndex++;
+                localStorage.setItem('currentIndex', 'LAST')
             }
             next();
         } else if (isBack === BACK) {
             currentIndex--;
-            if (currentIndex < 0) {
-                currentIndex = 0;
-                next(false);
+            if (currentIndex === 1) {
+                localStorage.setItem('currentIndex', 'FIRST')
+                next();
+            } else if (currentIndex < 1) {
+                currentIndex === 1;
+                localStorage.setItem('currentIndex', 'FIRST')
+
+                next(false)
             } else {
+                localStorage.setItem('currentIndex', 'CENTER')
                 next();
             }
         } else if (isBack === FORWARD) {
-            currentIndex++;
-            if (routerArr.length < currentIndex + 1) {
-                currentIndex = routerArr.length - 1;
-                next(false);
-
+            ++currentIndex;
+            if (currentIndex < routerArr.length) {
+                localStorage.setItem('currentIndex', 'CENTER')
+                next();
+            } else if (currentIndex > routerArr.length) {
+                currentIndex = routerArr.length;
+                localStorage.setItem('currentIndex', 'LAST')
+                next(false)
             } else {
+                localStorage.setItem('currentIndex', 'LAST')
                 next();
             }
         }
     }, 100);
+
+
 })
+
 export default router

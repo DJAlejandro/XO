@@ -2,8 +2,18 @@
   <div class="content-header">
     <div class="header-container">
       <div class="header-goto">
-        <span class="icon-back iconfont" @click="back($event)" v-preventReClick></span>
-        <span class="icon-forward iconfont" @click="forward($event)" v-preventReClick></span>
+        <span
+          class="icon-back iconfont"
+          :class="{disable:!isBackFlag}"
+          @click.stop="back($event)"
+          v-preventReClick
+        ></span>
+        <span
+          class="icon-forward iconfont"
+          :class="{disable:!isForwardFlag}"
+          @click.stop="forward($event)"
+          v-preventReClick
+        ></span>
       </div>
       <div class="header-content">{{tag}}</div>
       <div class="header-search" @click.stop :class="{focus:focusOnly}">
@@ -159,6 +169,10 @@
 </template>
 
 <script>
+const RELOAD = 0,
+  FIRST = 1,
+  CENTER = 2,
+  LAST = 3;
 import mixins from "mixins/index.js";
 import { instance, ALBUM, PLAYLIST, ARTIST } from "mixins/index.js";
 export default {
@@ -172,27 +186,57 @@ export default {
       playLists2: [],
       ALBUM,
       PLAYLIST,
-      ARTIST
+      ARTIST,
+      isBackFlag: false,
+      isForwardFlag: false
     };
   },
   methods: {
-    back() {
-      if (event.target.disabled) {
-        // 点击太频繁了
-        console.log("点击太频繁了");
-        return;
+    initCss() {
+      let currentIndex = localStorage.getItem("currentIndex");
+      switch (currentIndex) {
+        case "RELOAD":
+          this.isBackFlag = false;
+          this.isForwardFlag = false;
+          break;
+        case "FIRST":
+          this.isBackFlag = false;
+          this.isForwardFlag = true;
+          break;
+        case "CENTER":
+          this.isBackFlag = true;
+          this.isForwardFlag = true;
+          break;
+        case "LAST":
+          this.isBackFlag = true;
+          this.isForwardFlag = false;
+          break;
+        default:
+          break;
       }
-      this.setIsBackActions(1);
-      this.$router.go(-1);
     },
-    forward() {
+    back(event) {
       if (event.target.disabled) {
         // 点击太频繁了
         console.log("点击太频繁了");
         return;
       }
-      this.setIsBackActions(2);
-      this.$router.go(1);
+      if (this.isBackFlag) {
+        this.setIsBackActions(1);
+        this.$router.go(-1);
+      }
+    },
+    forward(event) {
+      if (event.target.disabled) {
+        // 点击太频繁了
+        console.log("点击太频繁了");
+        return;
+      }
+
+      if (this.isForwardFlag) {
+        this.setIsBackActions(2);
+        this.$router.go(1);
+      }
     },
 
     searchTimer($event) {
@@ -214,8 +258,6 @@ export default {
           })
           .then(res => {
             //获取歌手单曲
-            console.log(res);
-
             let resLength = res.data.result.order.length;
             this.setResLengthActions(resLength);
             this.setFocusFlagActions(true);
@@ -277,9 +319,14 @@ export default {
   watch: {
     result() {
       this.setSearchResultActions(this.result);
+    },
+    $route(to, from) {
+      // 对路由变化作出响应...
+      this.initCss();
     }
   },
   mounted() {
+    this.initCss();
     this.result = this.searchResult;
   }
 };
@@ -309,7 +356,7 @@ export default {
       span:first-child {
         margin-right: 8px;
       }
-      span:last-child {
+      .disable {
         opacity: 0.5;
       }
     }

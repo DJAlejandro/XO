@@ -2,7 +2,8 @@ import axios from "axios";
 
 import {
     mapActions,
-    mapState
+    mapState,
+    mapMutations
 } from "vuex";
 
 let instance = axios.create({
@@ -43,8 +44,6 @@ export default {
         ...mapActions(["setCookieActions"]),
         ...mapActions(["setRouterHistoryLengthActions"]),
         ...mapActions(["setIsBackActions"]),
-
-
 
         viewAll(event, type, retryFlag) {
             if (event.target.disabled) { // 点击太频繁了
@@ -170,9 +169,6 @@ export default {
                 query: {
                     id
                 }
-            }).then(res => {
-                console.log(1111111);
-
             }).
             catch(err => {
                 console.log(err);

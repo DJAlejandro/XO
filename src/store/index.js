@@ -13,7 +13,7 @@ export default new Vuex.Store({
         focusFlag: false,
         resLength: 0,
         categoryList: [{}],
-        isBack: 0
+        isBack: -1
     },
     mutations: {
         setCookie(state, data) {

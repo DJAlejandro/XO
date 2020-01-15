@@ -31,8 +31,7 @@ export default {
     closeSearch() {
       this.setFocusFlagActions(false);
     }
-  },
-  mounted() {}
+  }
 };
 </script>
 
