@@ -18,17 +18,22 @@
         </template>
       </v-slider>
     </div>
-    <div class="play-list-wrapper">
-      <play-list :items="newAlbums" />
+    <div class="media-container">
+      <div class="media-header">
+        <div class="media-header-title">新歌速递</div>
+        <a href="#" class="view-all" @click="goToTracks2($event)" v-preventReClick>View all</a>
+      </div>
+      <trackList :shortFlag="shortFlag" :needImg="needImg"></trackList>
     </div>
     <div class="play-list-wrapper">
-      <play-list :items="topAlbums" />
+      <play-list :items="newAlbums" @go-to="goTo($event,ALBUM)" />
     </div>
     <div class="play-list-wrapper">
-      <play-list :items="topSongs" />
+      <play-list :items="topAlbums" @go-to="goTo($event,ALBUM)" />
     </div>
+
     <div class="play-list-wrapper">
-      <play-list :items="topLists" />
+      <play-list :items="topLists" @go-to="goTo($event,PLAYLIST)" />
     </div>
   </div>
 </template>
@@ -41,23 +46,31 @@ import Vue from "vue";
 import VHeader from "components/VHeader.vue";
 import VSlider from "components/VSlider.vue";
 import PlayList from "./PlayList.vue";
+import TrackList from "./TrackList.vue";
+
 import mixins from "mixins/index.js";
-import { instance } from "mixins/index.js";
+import { instance, ALBUM, PLAYLIST, ARTIST } from "mixins/index.js";
+
 export default {
   mixins: [mixins],
   name: "home",
   components: {
     VHeader,
     VSlider,
-    PlayList
+    PlayList,
+    TrackList
   },
   data() {
     return {
+      ALBUM,
+      PLAYLIST,
+      ARTIST,
+      needImg: true,
+      shortFlag: true,
       banners: [],
       songs: [],
       newAlbums: [],
       topAlbums: [],
-      topSongs: [],
       topLists: [],
       swiperWidth: 1126,
       grabCursor: true,
@@ -72,7 +85,18 @@ export default {
     };
   },
   methods: {
-  
+    goTo(event, type) {
+      switch (type) {
+        case ALBUM:
+          this.goToAlbum(event.event, event.id, false);
+          break;
+        case PLAYLIST:
+          this.goToPlayList(event.event, event.id, false);
+          break;
+        default:
+          break;
+      }
+    },
     serialData4(item) {
       let arr = [],
         singers = [];
@@ -107,7 +131,7 @@ export default {
         this.setCookieActions(user);
       });
     instance.get("/top/album").then(res => {
-      let data = this.serialData(res.data.albums.slice(0, 12), false);
+      let data = this.serialData(res.data.albums.slice(0, 30), false);
       this.topAlbums = {
         title: "新碟上架",
         data
@@ -115,7 +139,7 @@ export default {
     });
 
     instance.get("/album/newest").then(res => {
-      let data = this.serialData(res.data.albums.slice(0, 12), false);
+      let data = this.serialData(res.data.albums.slice(0, 30), false);
       this.newAlbums = {
         title: "最新专辑",
         data
@@ -123,12 +147,18 @@ export default {
     });
 
     instance.get("/top/song?type=96").then(res => {
-      let reres = res.data.data.slice(0, 12);
-      let data = this.serialData(reres, true);
-      this.topSongs = {
-        title: "新歌速递",
-        data
-      };
+      let arr = [];
+      res.data.data.forEach(function(item) {
+        let { duration, name, id, artists, album } = item;
+        arr.push({
+          time: duration,
+          name,
+          artists,
+          id,
+          album
+        });
+      });
+      this.setTrackListActions(arr);
     });
 
     instance.get("banner?type=3").then(res => {
@@ -136,9 +166,22 @@ export default {
       this.banners = data;
     });
 
-    // instance.get("/toplist/detail").then(res => {
-    //   console.log(res.data); //全部新歌
-    // });
+    instance.get("/toplist/detail").then(res => {
+      console.log(res.data); //所有榜单内容摘要
+      let arr = [];
+      res.data.list.forEach(function(item) {
+        let { id, name, coverImgUrl } = item;
+        arr.push({
+          id,
+          title: name,
+          src: coverImgUrl
+        });
+      });
+      this.topLists = {
+        title: "榜单",
+        data: arr
+      };
+    });
   }
 };
 </script>
@@ -209,5 +252,29 @@ export default {
 
 .play-list-wrapper {
   margin-bottom: 48px;
+}
+
+.media-container {
+  margin: 0 28px;
+  margin-bottom: 48px;
+  min-height: 120px;
+  z-index: 1;
+  .media-header {
+    display: flex;
+    align-items: baseline;
+    .media-header-title {
+      flex-grow: 1;
+      font-size: 16px;
+      font-weight: 600;
+      line-height: 1.75;
+      margin: 0 0 16px;
+    }
+    .view-all {
+      flex-shrink: 0;
+      color: rgba(229, 238, 255, 0.6);
+      font-weight: 600;
+      font-size: 14px;
+    }
+  }
 }
 </style>

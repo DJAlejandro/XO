@@ -69,7 +69,7 @@
         <div class="media-header-title">Top Tracks</div>
         <a href="#" class="view-all" @click="goToTracks2($event)" v-preventReClick>View all</a>
       </div>
-      <trackList :shortFlag="shortFlag" :viewFull="viewFull"></trackList>
+      <trackList :shortFlag="shortFlag" :needImg="needImg"></trackList>
     </div>
   </div>
 </template>
@@ -87,6 +87,7 @@ export default {
   data() {
     return {
       shortFlag: false,
+      needImg:true,
       playlist: [],
       height: 0,
       scrollTop: 0,

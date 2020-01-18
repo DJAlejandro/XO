@@ -1,43 +1,49 @@
 <template>
-  <div class="artist-list-item">
-    <div class="artist-list-header">
+  <div class="artist-list-item" v-if="artistsList.data">
+    <div class="artist-list-header" v-if="artistsList.data.length>0">
       <h2 class="artist-list-title">{{artistsList.title}}</h2>
       <a class="view-all" @click="goToArtists($event)" v-preventReClick>View all</a>
     </div>
-    <v-slider
-      :swiperWidth="swiperWidth"
-      :grabCursor="grabCursor"
-      :slidesPerView="slidesPerView"
-      :slidesPerGroup="slidesPerGroup"
-      :spaceBetween="spaceBetween"
-    >
-      <template v-for="item in artistsList.data">
-        <swiper-slide>
-          <div class="home-slider-item" @click="goToArtist($event,item.id,false)" v-preventReClick>
-            <div class="home-slider-img-wrapper">
-              <img
-                :src="item.src+'?param=200y200'"
-                :alt="item.name"
-                class="item-img"
-                v-if="item.src"
-              />
-              <div v-else class="sub-name">{{item.name | subName}}</div>
+    <div v-if="artistsList.data.length>0">
+      <v-slider
+        :swiperWidth="swiperWidth"
+        :grabCursor="grabCursor"
+        :slidesPerView="slidesPerView"
+        :slidesPerGroup="slidesPerGroup"
+        :spaceBetween="spaceBetween"
+      >
+        <template v-for="item in artistsList.data">
+          <swiper-slide>
+            <div
+              class="home-slider-item"
+              @click="goToArtist($event,item.id,false)"
+              v-preventReClick
+            >
+              <div class="home-slider-img-wrapper">
+                <img
+                  :src="item.src+'?param=200y200'"
+                  :alt="item.name"
+                  class="item-img"
+                  v-if="item.src"
+                />
+                <div v-else class="sub-name">{{item.name | subName}}</div>
 
-              <div class="home-slider-overlay">
-                <span class="icon-more iconfont" @click.stop="go"></span>
-                <span class="icon-play iconfont" @click.stop="go"></span>
-                <span class="icon-favourite iconfont" @click.stop="go"></span>
+                <div class="home-slider-overlay">
+                  <span class="icon-more iconfont" @click.stop="go"></span>
+                  <span class="icon-play iconfont" @click.stop="go"></span>
+                  <span class="icon-favourite iconfont" @click.stop="go"></span>
+                </div>
+              </div>
+              <div class="home-slider-content">
+                <span class="home-slider-content-text">
+                  <a href="#">{{item.name}}</a>
+                </span>
               </div>
             </div>
-            <div class="home-slider-content">
-              <span class="home-slider-content-text">
-                <a href="#">{{item.name}}</a>
-              </span>
-            </div>
-          </div>
-        </swiper-slide>
-      </template>
-    </v-slider>
+          </swiper-slide>
+        </template>
+      </v-slider>
+    </div>
   </div>
 </template>
 
@@ -80,7 +86,7 @@ export default {
         console.log("点击太频繁了");
         return;
       }
-            this.setIsBackActions(0);
+      this.setIsBackActions(0);
 
       if (this.listFlag) {
         this.setFocusFlagActions(false);

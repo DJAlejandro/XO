@@ -59,7 +59,7 @@
       </div>
     </div>
     <div class="media-container">
-      <trackList></trackList>
+      <trackList :notAlbum="notAlbum"></trackList>
     </div>
     <artists-list :artistsList="artistsList" />
   </div>
@@ -82,9 +82,9 @@ export default {
       albumList: {},
       artist: {},
       artistsList: {},
-      shortFlag: true,
       isModalOpen: false,
-      modalData: {}
+      modalData: {},
+      notAlbum: false
     };
   },
   components: {
@@ -122,14 +122,28 @@ export default {
         })
         .then(res => {
           let data = res.data;
+          console.log(data);
+
           let {
             album: { picUrl, name, artists, artist, publishTime, description },
             songs
           } = data;
           let tracks = this.serialData2(songs);
+          let reg1 = /[a-zA-Z0-9]/;
+          let reg2 = /[\u4e00-\u9fa5]/; //汉字
           let descLength = description.length;
-          let subDesc = description.substring(0, 100);
+          let desArr = [];
           description = description.split("\n");
+          description.forEach(item => {
+            let str = item.trim();
+            let last = str.charAt(str.length - 1);
+            if (reg1.test(last) || reg2.test(last)) {
+              str = str + "。";
+            }
+            desArr.push(str);
+          });
+          let subDesc = desArr.join("");
+          subDesc = subDesc.substring(0, 100);
 
           this.artist = artist;
           this.albumList = {

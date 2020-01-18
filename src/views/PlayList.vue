@@ -2,7 +2,7 @@
   <div class="play-list-item">
     <div class="play-list-header">
       <h2 class="play-list-title">{{items.title}}</h2>
-      <a class="view-all" href="#" @click="view($event)" v-preventReClick>View all</a>
+      <a class="view-all" @click="view($event)" v-preventReClick>View all</a>
     </div>
     <v-slider
       :swiperWidth="swiperWidth"
@@ -68,8 +68,6 @@ export default {
   methods: {
     go() {},
     goTo(event, id) {
-      console.log(id);
-
       if (event.target.disabled) {
         // 点击太频繁了
         console.log("点击太频繁了");
@@ -78,14 +76,12 @@ export default {
       this.$emit("go-to", { event, id });
     },
     view(event) {
-      console.log(event.target.disabled);
-
       if (event.target.disabled) {
         // 点击太频繁了
         console.log("点击太频繁了");
         return;
       }
-      this.$emit("view-all");
+      this.$emit("view-all", event);
     }
   }
 };

@@ -2,7 +2,7 @@
   <div class="top-tracks">
     <v-header></v-header>
     <div class="top-tracks-container">
-      <trackList :viewFull="viewFull"></trackList>
+      <trackList :viewFull="viewFull" :needImg="needImg"></trackList>
     </div>
   </div>
 </template>
@@ -11,13 +11,15 @@ import TrackList from "./TrackList.vue";
 import VHeader from "components/VHeader.vue";
 import mixins from "mixins/index.js";
 export default {
-  mixins:[mixins],
+  mixins: [mixins],
   components: {
     VHeader,
     TrackList
   },
   data() {
-    return {};
+    return {
+      needImg: true
+    };
   }
 };
 </script>

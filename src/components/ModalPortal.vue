@@ -46,11 +46,15 @@ export default {
   props: {
     modalData: {
       default: {},
-      type: Object,
+      type: Object
+    }
+  },
+  data() {
+    return {
       ALBUM,
       PLAYLIST,
       ARTIST
-    }
+    };
   },
   methods: {
     closeBtn() {

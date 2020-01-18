@@ -254,6 +254,7 @@ export default {
                             src: img1v1Url
                         });
                     });
+
                     this.artistsList = {
                         title: "Related Artists",
                         data: artists
@@ -413,7 +414,7 @@ export default {
                     })
                     .then(res => {
                         //获取歌手单曲
-
+                        console.log(res)
                         let tracks = [];
                         res.data.result.songs.forEach(item => {
                             let {

@@ -6,15 +6,19 @@
         <div class="media-header-title">Top Tracks</div>
         <a href="#" class="view-all" @click="goToTracks($event)" v-preventReClick>View all</a>
       </div>
-      <trackList :shortFlag="shortFlag" :viewFull="viewFull"></trackList>
+      <trackList :shortFlag="shortFlag" :needImg="needImg"></trackList>
     </div>
     <div class="play-list-wrapper">
-      <play-list :items="albums" @view-all="viewAll(ALBUM,false)" @go-to="goTo($event,ALBUM)" />
+      <play-list
+        :items="albums"
+        @view-all="viewAll($event,ALBUM,false)"
+        @go-to="goTo($event,ALBUM)"
+      />
     </div>
     <div class="play-list-wrapper">
       <play-list
         :items="playLists"
-        @view-all="viewAll(PLAYLIST,false)"
+        @view-all="viewAll($event,PLAYLIST,false)"
         @go-to="goTo($event,PLAYLIST)"
       />
     </div>
@@ -35,6 +39,7 @@ export default {
     return {
       artistsList: {},
       shortFlag: true,
+      needImg: true,
       listFlag: true,
       result: "",
       songs: [],

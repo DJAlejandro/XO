@@ -69,7 +69,7 @@
         <div class="media-header-title">Top Tracks</div>
         <a href="#" class="view-all" @click="goToTracks2($event)" v-preventReClick>View all</a>
       </div>
-      <trackList :shortFlag="shortFlag" :viewFull="viewFull"></trackList>
+      <trackList :shortFlag="shortFlag" :needImg="needImg"></trackList>
     </div>
     <div class="play-list-wrapper">
       <play-list :items="albums" @view-all="viewAll(1)" @go-to="goTo($event,ALBUM)" />
@@ -105,6 +105,7 @@ export default {
       artistsList: {},
       artist: {},
       shortFlag: true,
+      needImg: true,
       height: 0,
       scrollTop: 0,
       albums2: [],
@@ -244,7 +245,6 @@ export default {
       }
     },
     goTo(event, type) {
-
       switch (type) {
         case ALBUM:
           this.goToAlbum(event.event, event.id, false);

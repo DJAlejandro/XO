@@ -4,7 +4,7 @@
       <div class="media-index">#</div>
       <div class="media-title">title</div>
       <div class="media-artist">artist</div>
-      <div class="media-album" v-if="viewFull">album</div>
+      <div class="media-album" v-if="notAlbum">album</div>
       <div class="media-time">time</div>
       <div class="media-controls"></div>
     </div>
@@ -16,7 +16,7 @@
       v-if="track!=null"
     >
       <div class="media-index">
-        <div class="text" v-if="viewFull && track.album.picUrl" :class="{active:viewFull}">
+        <div class="text active" v-if="needImg && track.album.picUrl">
           <img :src="track.album.picUrl+'?param=42y42'" alt="track.name" />
         </div>
         <div class="text" v-else>{{index+1}}</div>
@@ -39,7 +39,7 @@
       </div>
       <div
         class="media-album"
-        v-if="viewFull"
+        v-if="notAlbum"
         @click="goToAlbum($event,track.album.id,true)"
         v-preventReClick
       >
@@ -61,8 +61,19 @@ export default {
   mixins: [mixins],
   props: {
     shortFlag: {
+      //只显示前五项
       type: Boolean,
       default: false
+    },
+    needImg: {
+      //是否需要图片
+      type: Boolean,
+      default: false
+    },
+    notAlbum: {
+      //是否是album
+      type: Boolean,
+      default: true
     }
   },
   data() {
