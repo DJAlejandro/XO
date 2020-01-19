@@ -13,7 +13,12 @@
       >
         <template v-for="item in banners">
           <swiper-slide>
-            <img :src="item.src" :alt="item.title" class="home-item-img" />
+            <img
+              :src="item.src"
+              :alt="item.title"
+              class="home-item-img"
+              @click="goToBanner($event,item.type,item.id)"
+            />
           </swiper-slide>
         </template>
       </v-slider>
@@ -97,18 +102,17 @@ export default {
           break;
       }
     },
-    serialData4(item) {
-      let arr = [],
-        singers = [];
-      item.forEach(function(item) {
-        let { pic, typeTitle } = item;
-
-        arr.push({
-          src: pic,
-          title: typeTitle
-        });
-      });
-      return arr;
+    goToBanner(event, type, id) {
+      switch (type) {
+        case 10:
+          this.goToAlbum(event, id, false);
+          break;
+        case 1000:
+          this.goToPlayList(event, id, false);
+          break;
+        default:
+          break;
+      }
     }
   },
   created() {
@@ -137,7 +141,7 @@ export default {
         data
       };
     });
-
+    /* 最新专辑 */
     instance.get("/album/newest").then(res => {
       let data = this.serialData(res.data.albums.slice(0, 30), false);
       this.newAlbums = {
@@ -146,6 +150,7 @@ export default {
       };
     });
 
+    /* 新歌速递 */
     instance.get("/top/song?type=96").then(res => {
       let arr = [];
       res.data.data.forEach(function(item) {
@@ -162,12 +167,23 @@ export default {
     });
 
     instance.get("banner?type=3").then(res => {
-      let data = this.serialData4(res.data.banners);
-      this.banners = data;
-    });
+      console.log(res);
 
+      let arr = [];
+      res.data.banners.forEach(function(item) {
+        let { pic, typeTitle, targetId, targetType } = item;
+
+        arr.push({
+          src: pic,
+          title: typeTitle,
+          id: targetId,
+          type: targetType
+        });
+      });
+      this.banners = arr;
+    });
+    /* 榜单 */
     instance.get("/toplist/detail").then(res => {
-      console.log(res.data); //所有榜单内容摘要
       let arr = [];
       res.data.list.forEach(function(item) {
         let { id, name, coverImgUrl } = item;

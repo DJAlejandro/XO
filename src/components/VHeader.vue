@@ -20,7 +20,7 @@
         <span class="icon-search iconfont"></span>
         <input
           type="search"
-          :placeholder="routerHistoryLength"
+          placeholder="search"
           class="search-input"
           v-model="result"
           @input="searchTimer"

@@ -122,8 +122,6 @@ export default {
         })
         .then(res => {
           let data = res.data;
-          console.log(data);
-
           let {
             album: { picUrl, name, artists, artist, publishTime, description },
             songs

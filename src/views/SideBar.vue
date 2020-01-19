@@ -82,7 +82,7 @@ export default {};
   width: 240px;
   flex: 0 0 240px;
   background: #242428;
-  max-height: 100vh;
+  max-height: 100%;
   .side-bar-scroll {
     flex-grow: 1;
 

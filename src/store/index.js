@@ -13,7 +13,8 @@ export default new Vuex.Store({
         focusFlag: false,
         resLength: 0,
         categoryList: [{}],
-        isBack: -1
+        isBack: -1,
+        footerPlayer: {}
     },
     mutations: {
         setCookie(state, data) {
@@ -43,6 +44,9 @@ export default new Vuex.Store({
         setIsBack(state, data) {
             state.isBack = data
         },
+        setFooterPlayer(state, data) {
+            state.footerPlayer = data
+        }
     },
     actions: {
         setCookieActions(context, data) {
@@ -118,6 +122,15 @@ export default new Vuex.Store({
                 }, 100)
             })
         },
+
+        setFooterPlayerActions(context, data) {
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    context.commit('setFooterPlayer', data)
+                    resolve()
+                }, 100)
+            })
+        }
 
     },
     modules: {}

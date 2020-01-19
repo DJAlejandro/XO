@@ -44,6 +44,9 @@ export default {
         ...mapActions(["setCookieActions"]),
         ...mapActions(["setRouterHistoryLengthActions"]),
         ...mapActions(["setIsBackActions"]),
+        ...mapActions(["setFooterPlayerActions"]),
+
+
 
         viewAll(event, type, retryFlag) {
             if (event.target.disabled) { // 点击太频繁了
@@ -448,7 +451,8 @@ export default {
             trackList: "trackList",
             viewFull: "viewFull",
             categoryList: "categoryList",
-            routerHistoryLength: "routerHistoryLength"
+            footerPlayer: "footerPlayer",
+            isBack: "isBack"
         })
     },
 }

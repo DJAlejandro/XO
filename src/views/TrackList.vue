@@ -15,7 +15,7 @@
       @click="changeIndex(index)"
       v-if="track!=null"
     >
-      <div class="media-index">
+      <div class="media-index" @click="playTrack(track)">
         <div class="text active" v-if="needImg && track.album.picUrl">
           <img :src="track.album.picUrl+'?param=42y42'" alt="track.name" />
         </div>
@@ -96,6 +96,10 @@ export default {
     },
     changeIndex(index) {
       this.activeIndex = index;
+    },
+    playTrack(item) {
+      console.log(item);
+      this.setFooterPlayerActions(item);
     }
   }
 };
