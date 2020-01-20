@@ -45,7 +45,20 @@
             <span class="icon-repeat iconfont"></span>
           </div>
         </div>
-        <div class="right-column"></div>
+        <div class="right-column">
+          <div class="duration">
+            <time class="currentTime">0:00</time>
+            <time class="currentTime center">/</time>
+            <time>{{InstoreTime(footerPlayer.time)}}</time>
+          </div>
+          <div class="volume-slider">
+            <span class="icon-volume-on iconfont"></span>
+            <input class="native-range" type="range" max="100" min="0" value="27" />
+          </div>
+          <div class="play-queue">
+            <span class="icon-play-queue iconfont"></span>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -71,6 +84,13 @@ export default {
     },
     closeSearch() {
       this.setFocusFlagActions(false);
+    },
+    InstoreTime(time) {
+      let msec = Math.floor(time / 1000) * 1000;
+      let minutes = parseInt(msec / (1000 * 60));
+      let seconds = parseInt((msec % (1000 * 60)) / 1000) + "";
+      seconds = seconds.padStart(2, "0");
+      return minutes + ":" + seconds;
     }
   }
 };
@@ -180,13 +200,95 @@ export default {
           .icon-play {
             font-size: 40px;
           }
-          .icon-shuffle,.icon-repeat{
-            color:rgba(229,238,255,.6)
+          .icon-shuffle,
+          .icon-repeat {
+            color: rgba(229, 238, 255, 0.6);
           }
         }
       }
       .right-column {
         justify-content: flex-end;
+        .duration {
+          time {
+            font-size: 14px;
+            color: hsla(0, 0%, 100%, 0.5);
+          }
+          .currentTime {
+            color: #4c4e54;
+            &.center {
+              padding: 0 1.4px;
+            }
+          }
+        }
+        .volume-slider {
+          margin-left: 22px;
+          .icon-volume-on {
+            margin-right: 12px;
+            font-size: 24px;
+          }
+
+          .native-range {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            margin: 0;
+            width: 100%;
+            min-width: 75px;
+            height: 14px;
+            background: transparent;
+            font: 1em/1 arial, sans-serif;
+            cursor: pointer;
+            outline: none;
+            contain: strict;
+          }
+
+          .native-range:focus {
+            outline: none;
+          }
+
+          .native-range::-webkit-slider-runnable-track {
+            box-sizing: border-box;
+            border: none;
+            width: 100%;
+            height: 4px;
+            background: rgb(40, 40, 40);
+            border-radius: 4px;
+            outline: none;
+          }
+
+          .native-range::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            box-sizing: border-box;
+            border: none;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #fff;
+            cursor: pointer;
+            box-shadow: 1px 1px 3px 1px rgba(0, 0, 0, 0.4);
+            margin-top: -4px;
+          }
+
+          .native-range[value="0"]::-webkit-slider-runnable-track {
+            background: rgba(246, 245, 255, 0.1);
+          }
+
+          .disabled.native-range::-webkit-slider-thumb {
+            background: none;
+          }
+
+          .disabled.native-range::-webkit-slider-runnable-track {
+            background: rgba(246, 245, 255, 0.1);
+          }
+        }
+        .play-queue {
+          margin: 0 12px;
+          .iconfont {
+            color: rgba(229, 238, 255, 0.6);
+            font-size: 24px;
+          }
+        }
       }
     }
   }
