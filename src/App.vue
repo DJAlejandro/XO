@@ -47,13 +47,22 @@
         </div>
         <div class="right-column">
           <div class="duration">
-            <time class="currentTime">0:00</time>
+            <time class="currentTime">{{this.inputValue}}</time>
             <time class="currentTime center">/</time>
             <time>{{InstoreTime(footerPlayer.time)}}</time>
           </div>
           <div class="volume-slider">
-            <span class="icon-volume-on iconfont"></span>
-            <input class="native-range" type="range" max="100" min="0" value="27" />
+            <span class="icon-volume-on iconfont" v-if="inputValue!==0" @click="toggleValue"></span>
+            <span class="icon-volume-off iconfont" v-if="inputValue===0" @click="toggleValue"></span>
+
+            <input
+              class="native-range"
+              type="range"
+              max="100"
+              min="0"
+              v-model="inputValue"
+              ref="nativeRange"
+            />
           </div>
           <div class="play-queue">
             <span class="icon-play-queue iconfont"></span>
@@ -72,7 +81,8 @@ export default {
   mixins: [mixins],
   data() {
     return {
-      contentArea: Home
+      contentArea: Home,
+      inputValue: 0
     };
   },
   components: {
@@ -91,6 +101,42 @@ export default {
       let seconds = parseInt((msec % (1000 * 60)) / 1000) + "";
       seconds = seconds.padStart(2, "0");
       return minutes + ":" + seconds;
+    },
+    searchTimer() {
+      if (this.timer) {
+        clearTimeout(this.timer);
+      }
+      this.timer = setTimeout(() => {
+        localStorage.setItem("inputValue", this.inputValue);
+        if (this.inputValue !== 0) {
+          localStorage.setItem("lastValue", this.inputValue);
+        }
+      }, 300);
+    },
+    toggleValue() {
+      let val = parseInt(localStorage.getItem("lastValue"));
+      if (this.inputValue !== 0) {
+        localStorage.setItem("lastValue", this.inputValue);
+        this.inputValue = 0;
+        localStorage.setItem("inputValue", 0);
+      } else {
+        this.inputValue = val;
+        localStorage.setItem("inputValue", val);
+      }
+    }
+  },
+  watch: {
+    inputValue() {
+      this.$refs.nativeRange.style.backgroundSize = `${this.inputValue}% 100%`;
+      this.searchTimer();
+    }
+  },
+  mounted() {
+    let val = parseInt(localStorage.getItem("inputValue"));
+    if (!val) {
+      this.inputValue = 0;
+    } else {
+      this.inputValue = val;
     }
   }
 };
@@ -222,7 +268,9 @@ export default {
         }
         .volume-slider {
           margin-left: 22px;
-          .icon-volume-on {
+          display: flex;
+          align-items: center;
+          .iconfont {
             margin-right: 12px;
             font-size: 24px;
           }
@@ -234,12 +282,14 @@ export default {
             margin: 0;
             width: 100%;
             min-width: 75px;
-            height: 14px;
+            height: 3px;
             background: transparent;
             font: 1em/1 arial, sans-serif;
             cursor: pointer;
             outline: none;
-            contain: strict;
+            // contain: strict;
+            background: -webkit-linear-gradient(#fff, #fff) no-repeat;
+            background-size: 0% 100%;
           }
 
           .native-range:focus {
@@ -251,7 +301,6 @@ export default {
             border: none;
             width: 100%;
             height: 4px;
-            background: rgb(40, 40, 40);
             border-radius: 4px;
             outline: none;
           }
