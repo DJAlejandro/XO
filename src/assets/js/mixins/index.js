@@ -45,6 +45,7 @@ export default {
         ...mapActions(["setRouterHistoryLengthActions"]),
         ...mapActions(["setIsBackActions"]),
         ...mapActions(["setFooterPlayerActions"]),
+        ...mapActions(["setIsPlayingActions"]),
 
 
 
@@ -452,7 +453,8 @@ export default {
             viewFull: "viewFull",
             categoryList: "categoryList",
             footerPlayer: "footerPlayer",
-            isBack: "isBack"
+            isBack: "isBack",
+            isPlaying: "isPlaying"
         })
     },
 }

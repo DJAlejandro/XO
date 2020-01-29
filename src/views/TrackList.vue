@@ -98,8 +98,8 @@ export default {
       this.activeIndex = index;
     },
     playTrack(item) {
-      console.log(item);
       this.setFooterPlayerActions(item);
+      this.setIsPlayingActions(true);
     }
   }
 };

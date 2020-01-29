@@ -167,8 +167,6 @@ export default {
     });
 
     instance.get("banner?type=3").then(res => {
-      console.log(res);
-
       let arr = [];
       res.data.banners.forEach(function(item) {
         let { pic, typeTitle, targetId, targetType } = item;

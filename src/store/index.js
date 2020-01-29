@@ -14,7 +14,8 @@ export default new Vuex.Store({
         resLength: 0,
         categoryList: [{}],
         isBack: -1,
-        footerPlayer: {}
+        footerPlayer: {},
+        isPlaying: false
     },
     mutations: {
         setCookie(state, data) {
@@ -46,6 +47,10 @@ export default new Vuex.Store({
         },
         setFooterPlayer(state, data) {
             state.footerPlayer = data
+        },
+        setIsPlaying(state, data) {
+            state.isPlaying = data
+
         }
     },
     actions: {
@@ -130,7 +135,15 @@ export default new Vuex.Store({
                     resolve()
                 }, 100)
             })
-        }
+        },
+        setIsPlayingActions(context, data) {
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    context.commit('setIsPlaying', data)
+                    resolve()
+                }, 100)
+            })
+        },
 
     },
     modules: {}

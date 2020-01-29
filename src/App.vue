@@ -40,27 +40,31 @@
           <div class="play-controls">
             <span class="icon-shuffle iconfont"></span>
             <span class="icon-previous iconfont"></span>
-            <span class="icon-play iconfont"></span>
+            <span class="icon-play iconfont" @click="togglePlay" v-if="!isPlaying"></span>
+            <span class="icon-remove iconfont" @click="togglePlay" v-if="isPlaying"></span>
+
             <span class="icon-next iconfont"></span>
             <span class="icon-repeat iconfont"></span>
           </div>
         </div>
+
         <div class="right-column">
           <div class="duration">
-            <time class="currentTime">{{this.inputValue}}</time>
+            <time class="currentTime">{{this.currentTime}}</time>
             <time class="currentTime center">/</time>
             <time>{{InstoreTime(footerPlayer.time)}}</time>
           </div>
           <div class="volume-slider">
-            <span class="icon-volume-on iconfont" v-if="inputValue!==0" @click="toggleValue"></span>
-            <span class="icon-volume-off iconfont" v-if="inputValue===0" @click="toggleValue"></span>
+            <span class="icon-volume-on iconfont" v-if="volume>0&&volume<50" @click="toggleValue"></span>
+            <span class="icon-volume-full iconfont" v-if="volume>=50" @click="toggleValue"></span>
+            <span class="icon-volume-off iconfont" v-if="volume===0" @click="toggleValue"></span>
 
             <input
               class="native-range"
               type="range"
               max="100"
               min="0"
-              v-model="inputValue"
+              v-model.number="volume"
               ref="nativeRange"
             />
           </div>
@@ -70,6 +74,8 @@
         </div>
       </div>
     </div>
+
+    <audio src ref="player" control @timeupdate="getCurrentTime" @ended="end"></audio>
   </div>
 </template>
 
@@ -77,12 +83,15 @@
 import SideBar from "./views/SideBar.vue";
 import Home from "./views/Home.vue";
 import mixins from "mixins/index.js";
+import { instance } from "mixins/index.js";
+
 export default {
   mixins: [mixins],
   data() {
     return {
       contentArea: Home,
-      inputValue: 0
+      volume: 0,
+      currentTime: 0
     };
   },
   components: {
@@ -107,37 +116,87 @@ export default {
         clearTimeout(this.timer);
       }
       this.timer = setTimeout(() => {
-        localStorage.setItem("inputValue", this.inputValue);
-        if (this.inputValue !== 0) {
-          localStorage.setItem("lastValue", this.inputValue);
+        localStorage.setItem("volume", parseInt(this.volume));
+        if (this.volume !== 0) {
+          localStorage.setItem("lastValue", parseInt(this.volume));
         }
       }, 300);
     },
     toggleValue() {
       let val = parseInt(localStorage.getItem("lastValue"));
-      if (this.inputValue !== 0) {
-        localStorage.setItem("lastValue", this.inputValue);
-        this.inputValue = 0;
-        localStorage.setItem("inputValue", 0);
+      if (this.volume !== 0) {
+        localStorage.setItem("lastValue", this.volume);
+        this.volume = 0;
+        localStorage.setItem("volume", 0);
       } else {
-        this.inputValue = val;
-        localStorage.setItem("inputValue", val);
+        this.volume = val;
+        localStorage.setItem("volume", val);
       }
+    },
+    togglePlay() {
+      if (this.isPlaying) {
+        this.setIsPlayingActions(false);
+        this.$refs.player.pause();
+      } else {
+        this.setIsPlayingActions(true);
+        this.$refs.player.play();
+      }
+    },
+    getCurrentTime() {
+      let msec = Math.floor(this.$refs.player.currentTime);
+      let minutes = parseInt(msec / 60);
+      let seconds = parseInt(msec % 60) + "";
+      seconds = seconds.padStart(2, "0");
+      this.currentTime = minutes + ":" + seconds;
+    },
+    end() {
+      this.setIsPlayingActions(false);
     }
   },
   watch: {
-    inputValue() {
-      this.$refs.nativeRange.style.backgroundSize = `${this.inputValue}% 100%`;
+    volume() {
+      console.log(typeof this.volume);
+
+      this.$refs.nativeRange.style.backgroundSize = `${this.volume}% 100%`;
+      this.$refs.player.volume = parseInt(this.volume) / 100;
       this.searchTimer();
+    },
+    footerPlayer() {
+      instance
+        .get("/song/url", {
+          params: {
+            id: this.footerPlayer.id
+          }
+        })
+        .then(res => {
+          setTimeout(() => {
+            this.$refs.player.src = res.data.data[0].url;
+            this.$refs.player.autoplay = true;
+            this.$refs.player.play();
+          }, 300);
+        });
     }
   },
   mounted() {
-    let val = parseInt(localStorage.getItem("inputValue"));
+    // this.$refs.player.autoplay = true;
+    // this.$refs.player.defaultMuted = false;
+    setInterval(() => {
+      // console.log(this.$refs.player.currentTime);
+    }, 1000);
+
+    let val = parseInt(localStorage.getItem("volume"));
+    console.log(typeof val);
+
     if (!val) {
-      this.inputValue = 0;
+      this.volume = 0;
     } else {
-      this.inputValue = val;
+      this.volume = val;
     }
+    this.$refs.player.volume = parseInt(this.volume) / 100;
+
+    instance.get("/login/status").then(res => {
+      console.log(res.data.profile.userId);
+    });
   }
 };
 </script>
