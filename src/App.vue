@@ -10,7 +10,21 @@
     </div>
 
     <div class="footer-player">
-      <div class="top-row"></div>
+      <div class="top-row">
+        <div class="progress-bar-wrapper" ref="filling">
+          <div class="filling-block">
+            <div class="knob" ref="knob"></div>
+            <div class="indicator" ref="progress"></div>
+          </div>
+          <div
+            class="interaction-layer"
+            @mousedown.stop.prevent="dragStart"
+            @mousemove.stop.prevent="drag"
+            @mouseup.stop.prevent="dragEnd"
+            @mouseleave="dragEnd"
+          ></div>
+        </div>
+      </div>
       <div class="bottom-row">
         <div class="left-column">
           <div class="media-img" v-if="footerPlayer.album">
@@ -91,7 +105,10 @@ export default {
     return {
       contentArea: Home,
       volume: 0,
-      currentTime: 0
+      currentTime: 0,
+      percent: -100,
+      mouseDown: false,
+      fillingWidth: 0
     };
   },
   components: {
@@ -148,15 +165,37 @@ export default {
       let seconds = parseInt(msec % 60) + "";
       seconds = seconds.padStart(2, "0");
       this.currentTime = minutes + ":" + seconds;
+      let percent =
+        (this.$refs.player.currentTime / this.footerPlayer.time) * 1000;
+      if (percent > 1) {
+        percent = 1;
+      }
+      this.percent = 100 * percent - 100;
+      this.$refs.progress.style.transform = `translateX(${this.percent}%)`;
+      this.$refs.knob.style.left = this.fillingWidth * percent + "px";
     },
     end() {
       this.setIsPlayingActions(false);
+    },
+    dragStart(event) {
+      this.mouseDown = true;
+    },
+    drag(event) {
+      if (this.mouseDown) {
+        this.$refs.knob.style.left = event.pageX + "px";
+        let percent = event.pageX / this.fillingWidth;
+        this.percent = 100 * percent - 100;
+        this.$refs.progress.style.transform = `translateX(${this.percent}%)`;
+        this.$refs.player.currentTime =
+          (this.footerPlayer.time * percent) / 1000;
+      }
+    },
+    dragEnd(event) {
+      this.mouseDown = false;
     }
   },
   watch: {
     volume() {
-      console.log(typeof this.volume);
-
       this.$refs.nativeRange.style.backgroundSize = `${this.volume}% 100%`;
       this.$refs.player.volume = parseInt(this.volume) / 100;
       this.searchTimer();
@@ -180,13 +219,11 @@ export default {
   mounted() {
     // this.$refs.player.autoplay = true;
     // this.$refs.player.defaultMuted = false;
-    setInterval(() => {
-      // console.log(this.$refs.player.currentTime);
-    }, 1000);
+    this.fillingWidth = this.$refs.filling.offsetWidth;
+
+    setInterval(() => {}, 1000);
 
     let val = parseInt(localStorage.getItem("volume"));
-    console.log(typeof val);
-
     if (!val) {
       this.volume = 0;
     } else {
@@ -235,6 +272,55 @@ export default {
     height: 98px;
     z-index: 10;
     background-color: #222;
+    .top-row {
+      .progress-bar-wrapper {
+        width: 100%;
+        height: 2px;
+        color: #0ff;
+        position: relative;
+        outline: none;
+        .filling-block {
+          display: block;
+          position: relative;
+
+          height: 100%;
+          background-color: #4d4d4d;
+          width: 100%;
+          // contain: strict;
+          // overflow: hidden;
+          .knob {
+            // opacity: 0;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #fff;
+            position: absolute;
+            z-index: 10;
+            transition: opacity 0.15s ease;
+            box-shadow: 1px 1px 3px 1px rgba(0, 0, 0, 0.4);
+            pointer-events: none;
+            transform: translateY(-5px);
+            &:hover {
+              cursor: pointer;
+            }
+          }
+          .indicator {
+            display: block;
+            height: 100%;
+            width: 100%;
+            background-color: #0ff;
+            position: relative;
+            will-change: transform;
+            transform: translateX(-100%);
+          }
+        }
+        .interaction-layer {
+          height: 30px;
+          cursor: pointer;
+          transform: translateY(-60%);
+        }
+      }
+    }
     .bottom-row {
       display: flex;
       flex-flow: row nowrap;
