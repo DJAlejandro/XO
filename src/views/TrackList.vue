@@ -98,8 +98,21 @@ export default {
       this.activeIndex = index;
     },
     playTrack(item) {
-      this.setFooterPlayerActions(item);
       this.setIsPlayingActions(true);
+      let arr = this.footerPlayer;
+      let flag = true;
+      arr.forEach((ele, index) => {
+        if (ele.id === item.id) {
+          flag = false;
+          this.setPlayerIndexActions(index);
+          return;
+        }
+      });
+      if (flag) {
+        arr.push(item);
+        this.setPlayerIndexActions(this.footerPlayer.length - 1);
+      }
+      this.setFooterPlayerActions(arr);
     }
   }
 };

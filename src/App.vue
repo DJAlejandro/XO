@@ -27,15 +27,15 @@
       </div>
       <div class="bottom-row">
         <div class="left-column">
-          <div class="media-img" v-if="footerPlayer.album">
-            <img :src="footerPlayer.album.picUrl+'?param=70y70'" />
+          <div class="media-img" v-if="player.album">
+            <img :src="player.album.picUrl+'?param=70y70'" />
           </div>
           <div class="media-info">
-            <div class="media-info-title">{{footerPlayer.name}}</div>
+            <div class="media-info-title">{{player.name}}</div>
             <div class="media-info-artist">
               <a href="#">
                 <span
-                  v-for="(artist,index) in footerPlayer.artists"
+                  v-for="(artist,index) in player.artists"
                   @click="goToArtist($event,artist.id,true)"
                   v-preventReClick
                 >
@@ -52,13 +52,19 @@
         </div>
         <div class="center-column">
           <div class="play-controls">
-            <span class="icon-shuffle iconfont"></span>
-            <span class="icon-previous iconfont"></span>
+            <span class="icon-shuffle iconfont" @click="shuffle" :class="{active:shuffleType}"></span>
+            <span class="icon-previous iconfont" @click="prev"></span>
             <span class="icon-play iconfont" @click="togglePlay" v-if="!isPlaying"></span>
-            <span class="icon-remove iconfont" @click="togglePlay" v-if="isPlaying"></span>
+            <span class="icon-pause iconfont" @click="togglePlay" v-if="isPlaying"></span>
 
-            <span class="icon-next iconfont"></span>
-            <span class="icon-repeat iconfont"></span>
+            <span class="icon-next iconfont" @click="next(true)"></span>
+            <span
+              class="icon-repeat iconfont"
+              @click="repeat"
+              :class="{active:repeatType===1}"
+              v-if="repeatType!==2"
+            ></span>
+            <span class="icon-repeat-one iconfont" @click="repeat" v-if="repeatType===2"></span>
           </div>
         </div>
 
@@ -66,7 +72,7 @@
           <div class="duration">
             <time class="currentTime">{{this.currentTime}}</time>
             <time class="currentTime center">/</time>
-            <time>{{InstoreTime(footerPlayer.time)}}</time>
+            <time v-if="player.time">{{InstoreTime(player.time)}}</time>
           </div>
           <div class="volume-slider">
             <span class="icon-volume-on iconfont" v-if="volume>0&&volume<50" @click="toggleValue"></span>
@@ -94,6 +100,10 @@
 </template>
 
 <script>
+const NORAML = 0,
+  CIRCLE = 1,
+  REPEAT = 2,
+  MIX = 3;
 import SideBar from "./views/SideBar.vue";
 import Home from "./views/Home.vue";
 import mixins from "mixins/index.js";
@@ -108,13 +118,27 @@ export default {
       currentTime: 0,
       percent: -100,
       mouseDown: false,
-      fillingWidth: 0
+      fillingWidth: 0,
+      player: {},
+      shuffleType: false,
+      repeatType: 0
     };
   },
   components: {
     SideBar
   },
   methods: {
+    shuffle() {
+      this.shuffleType = !this.shuffleType;
+    },
+    repeat() {
+      let type = this.repeatType;
+      type++;
+      if (type > 2) {
+        type = 0;
+      }
+      this.repeatType = type;
+    },
     scrollTop() {
       this.$refs.content.scrollTop = 0;
     },
@@ -165,8 +189,7 @@ export default {
       let seconds = parseInt(msec % 60) + "";
       seconds = seconds.padStart(2, "0");
       this.currentTime = minutes + ":" + seconds;
-      let percent =
-        (this.$refs.player.currentTime / this.footerPlayer.time) * 1000;
+      let percent = (this.$refs.player.currentTime / this.player.time) * 1000;
       if (percent > 1) {
         percent = 1;
       }
@@ -176,6 +199,9 @@ export default {
     },
     end() {
       this.setIsPlayingActions(false);
+      if (this.repeatType !== 3) {
+        this.next(false);
+      }
     },
     dragStart(event) {
       this.mouseDown = true;
@@ -186,25 +212,25 @@ export default {
         let percent = event.pageX / this.fillingWidth;
         this.percent = 100 * percent - 100;
         this.$refs.progress.style.transform = `translateX(${this.percent}%)`;
-        this.$refs.player.currentTime =
-          (this.footerPlayer.time * percent) / 1000;
+        this.$refs.player.currentTime = (this.player.time * percent) / 1000;
       }
     },
     dragEnd(event) {
       this.mouseDown = false;
-    }
-  },
-  watch: {
-    volume() {
-      this.$refs.nativeRange.style.backgroundSize = `${this.volume}% 100%`;
-      this.$refs.player.volume = parseInt(this.volume) / 100;
-      this.searchTimer();
     },
-    footerPlayer() {
+    changeSong() {
+      this.player = this.footerPlayer[this.playerIndex];
+      if (!this.shuffleType) {
+        if (this.playerIndex === this.footerPlayer.length - 1) {
+          if (this.repeatType !== 1) {
+            this.repeatType = 3;
+          }
+        }
+      }
       instance
         .get("/song/url", {
           params: {
-            id: this.footerPlayer.id
+            id: this.player.id
           }
         })
         .then(res => {
@@ -214,6 +240,97 @@ export default {
             this.$refs.player.play();
           }, 300);
         });
+    },
+    prev() {
+      this.setIsPlayingActions(true);
+
+      if (this.repeatType === 2) {
+        this.repeatType = 0;
+        if (!this.shuffleType) {
+          let index = this.playerIndex;
+          index--;
+          if (index < 0) {
+            index = this.footerPlayer.length - 1;
+          }
+          this.setPlayerIndexActions(index);
+        }
+      } else if (this.repeatType === 1 || this.repeatType === 0) {
+        if (!this.shuffleType) {
+          let index = this.playerIndex;
+          index--;
+          if (index < 0) {
+            index = this.footerPlayer.length - 1;
+          }
+          this.setPlayerIndexActions(index);
+        }
+      } else if (this.repeatType === 3) {
+        this.repeatType = 0;
+        this.setPlayerIndexActions(this.footerPlayer.length - 2);
+      }
+      setTimeout(() => {
+        this.changeSong();
+      }, 300);
+    },
+    next(flag) {
+      this.setIsPlayingActions(true);
+
+      if (this.repeatType === 2) {
+        if (flag) {
+          this.repeatType = 0;
+          if (!this.shuffleType) {
+            let index = this.playerIndex;
+            index++;
+            if (index > this.footerPlayer.length - 1) {
+              index = 0;
+            }
+            this.setPlayerIndexActions(index);
+          }
+        }
+      } else if (this.repeatType === 1) {
+        if (!this.shuffleType) {
+          let index = this.playerIndex;
+          index++;
+          if (index > this.footerPlayer.length - 1) {
+            index = 0;
+          }
+          this.setPlayerIndexActions(index);
+        }
+      } else if (this.repeatType === 0) {
+        if (!this.shuffleType) {
+          let index = this.playerIndex;
+          index++;
+          if (index > this.footerPlayer.length - 1) {
+            if (flag) {
+              index = 0;
+            } else {
+              this.repeatType = 3;
+              index = this.footerPlayer.length - 1;
+            }
+          }
+          this.setPlayerIndexActions(index);
+        }
+      } else if (this.repeatType === 3) {
+        if (flag) {
+          this.repeatType = 0;
+          this.setPlayerIndexActions(0);
+        }
+      }
+      setTimeout(() => {
+        this.changeSong();
+      }, 300);
+    }
+  },
+  watch: {
+    volume() {
+      this.$refs.nativeRange.style.backgroundSize = `${this.volume}% 100%`;
+      this.$refs.player.volume = parseInt(this.volume) / 100;
+      this.searchTimer();
+    },
+    footerPlayer() {
+      this.changeSong();
+    },
+    playerIndex() {
+      this.changeSong();
     }
   },
   mounted() {
@@ -232,7 +349,7 @@ export default {
     this.$refs.player.volume = parseInt(this.volume) / 100;
 
     instance.get("/login/status").then(res => {
-      console.log(res.data.profile.userId);
+      // console.log(res.data.profile.userId);
     });
   }
 };
@@ -394,6 +511,12 @@ export default {
           .icon-shuffle,
           .icon-repeat {
             color: rgba(229, 238, 255, 0.6);
+            &.active {
+              color: #0ff;
+            }
+          }
+          .icon-repeat-one {
+            color: #0ff;
           }
         }
       }

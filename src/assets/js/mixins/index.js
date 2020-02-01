@@ -46,6 +46,8 @@ export default {
         ...mapActions(["setIsBackActions"]),
         ...mapActions(["setFooterPlayerActions"]),
         ...mapActions(["setIsPlayingActions"]),
+        ...mapActions(["setPlayerIndexActions"]),
+
 
 
 
@@ -454,7 +456,8 @@ export default {
             categoryList: "categoryList",
             footerPlayer: "footerPlayer",
             isBack: "isBack",
-            isPlaying: "isPlaying"
+            isPlaying: "isPlaying",
+            playerIndex: "playerIndex"
         })
     },
 }
