@@ -103,7 +103,7 @@
 const NORAML = 0,
   CIRCLE = 1,
   REPEAT = 2,
-  MIX = 3;
+  STOP = 3;
 import SideBar from "./views/SideBar.vue";
 import Home from "./views/Home.vue";
 import mixins from "mixins/index.js";
@@ -121,7 +121,9 @@ export default {
       fillingWidth: 0,
       player: {},
       shuffleType: false,
-      repeatType: 0
+      repeatType: 0,
+      footerPlayerCopy: [],
+      lastSongId: 0
     };
   },
   components: {
@@ -135,7 +137,7 @@ export default {
       let type = this.repeatType;
       type++;
       if (type > 2) {
-        type = 0;
+        type = NORAML;
       }
       this.repeatType = type;
     },
@@ -199,7 +201,7 @@ export default {
     },
     end() {
       this.setIsPlayingActions(false);
-      if (this.repeatType !== 3) {
+      if (this.repeatType !== STOP) {
         this.next(false);
       }
     },
@@ -219,33 +221,54 @@ export default {
       this.mouseDown = false;
     },
     changeSong() {
-      this.player = this.footerPlayer[this.playerIndex];
+      let flag1 = this.repeatType === REPEAT;
+      let flag2 = true;
       if (!this.shuffleType) {
+        this.player = this.footerPlayer[this.playerIndex];
+
+        if (this.player.id === this.lastSongId) {
+          flag2 = false;
+        }
+        this.setPlayerIdActions(this.player.id);
+        localStorage.setItem("id", this.player.id);
         if (this.playerIndex === this.footerPlayer.length - 1) {
-          if (this.repeatType !== 1) {
-            this.repeatType = 3;
+          if (this.repeatType !== CIRCLE) {
+            this.repeatType = STOP;
           }
         }
+      } else {
+        this.player = this.footerPlayerCopy[this.playerIndex];
+        if (this.player.id === this.lastSongId) {
+          flag2 = false;
+        }
+        this.setPlayerIdActions(this.player.id);
+        localStorage.setItem("id", this.player.id);
       }
-      instance
-        .get("/song/url", {
-          params: {
-            id: this.player.id
-          }
-        })
-        .then(res => {
-          setTimeout(() => {
-            this.$refs.player.src = res.data.data[0].url;
-            this.$refs.player.autoplay = true;
-            this.$refs.player.play();
-          }, 300);
-        });
+      this.lastSongId = this.player.id;
+      if (flag1) {
+        this.$refs.player.play();
+      }
+      if (flag2) {
+        instance
+          .get("/song/url", {
+            params: {
+              id: this.player.id
+            }
+          })
+          .then(res => {
+            setTimeout(() => {
+              this.$refs.player.src = res.data.data[0].url;
+              this.$refs.player.autoplay = true;
+              this.$refs.player.play();
+            }, 300);
+          });
+      }
     },
     prev() {
       this.setIsPlayingActions(true);
 
-      if (this.repeatType === 2) {
-        this.repeatType = 0;
+      if (this.repeatType === REPEAT) {
+        this.repeatType = NORAML;
         if (!this.shuffleType) {
           let index = this.playerIndex;
           index--;
@@ -254,7 +277,7 @@ export default {
           }
           this.setPlayerIndexActions(index);
         }
-      } else if (this.repeatType === 1 || this.repeatType === 0) {
+      } else if (this.repeatType === CIRCLE || this.repeatType === NORAML) {
         if (!this.shuffleType) {
           let index = this.playerIndex;
           index--;
@@ -263,31 +286,17 @@ export default {
           }
           this.setPlayerIndexActions(index);
         }
-      } else if (this.repeatType === 3) {
-        this.repeatType = 0;
+      } else if (this.repeatType === STOP) {
+        this.repeatType = NORAML;
         this.setPlayerIndexActions(this.footerPlayer.length - 2);
       }
-      setTimeout(() => {
-        this.changeSong();
-      }, 300);
     },
     next(flag) {
       this.setIsPlayingActions(true);
 
-      if (this.repeatType === 2) {
+      if (this.repeatType === REPEAT) {
         if (flag) {
           this.repeatType = 0;
-          if (!this.shuffleType) {
-            let index = this.playerIndex;
-            index++;
-            if (index > this.footerPlayer.length - 1) {
-              index = 0;
-            }
-            this.setPlayerIndexActions(index);
-          }
-        }
-      } else if (this.repeatType === 1) {
-        if (!this.shuffleType) {
           let index = this.playerIndex;
           index++;
           if (index > this.footerPlayer.length - 1) {
@@ -295,29 +304,34 @@ export default {
           }
           this.setPlayerIndexActions(index);
         }
-      } else if (this.repeatType === 0) {
-        if (!this.shuffleType) {
-          let index = this.playerIndex;
-          index++;
-          if (index > this.footerPlayer.length - 1) {
-            if (flag) {
-              index = 0;
-            } else {
-              this.repeatType = 3;
-              index = this.footerPlayer.length - 1;
-            }
-          }
-          this.setPlayerIndexActions(index);
+      } else if (this.repeatType === CIRCLE) {
+        let index = this.playerIndex;
+        index++;
+        if (index > this.footerPlayer.length - 1) {
+          index = 0;
         }
-      } else if (this.repeatType === 3) {
+        this.setPlayerIndexActions(index);
+      } else if (this.repeatType === NORAML) {
+        let index = this.playerIndex;
+        index++;
+        if (index > this.footerPlayer.length - 1) {
+          if (flag) {
+            index = 0;
+          } else {
+            this.repeatType = STOP;
+            index = this.footerPlayer.length - 1;
+          }
+        }
+        this.setPlayerIndexActions(index);
+      } else if (this.repeatType === STOP) {
         if (flag) {
-          this.repeatType = 0;
+          this.repeatType = NORAML;
           this.setPlayerIndexActions(0);
         }
       }
-      setTimeout(() => {
+      if (!flag) {
         this.changeSong();
-      }, 300);
+      }
     }
   },
   watch: {
@@ -327,18 +341,46 @@ export default {
       this.searchTimer();
     },
     footerPlayer() {
+      localStorage.setItem("player", JSON.stringify(this.footerPlayer));
       this.changeSong();
     },
     playerIndex() {
+      localStorage.setItem("index", this.playerIndex);
       this.changeSong();
+    },
+    shuffleType() {
+      let id = this.player.id;
+      if (this.shuffleType) {
+        let footerPlayerCopy = [...this.footerPlayer];
+        footerPlayerCopy.sort(function() {
+          return Math.random() - 0.5;
+        });
+        this.footerPlayerCopy = footerPlayerCopy;
+        footerPlayerCopy.forEach((item, index) => {
+          if (item.id === id) {
+            this.setPlayerIndexActions(index);
+          }
+        });
+      } else {
+        this.footerPlayer.forEach((item, index) => {
+          if (item.id === id) {
+            this.setPlayerIndexActions(index);
+          }
+        });
+      }
     }
   },
   mounted() {
     // this.$refs.player.autoplay = true;
     // this.$refs.player.defaultMuted = false;
     this.fillingWidth = this.$refs.filling.offsetWidth;
+    this.setFooterPlayerActions(JSON.parse(localStorage.getItem("player")));
 
-    setInterval(() => {}, 1000);
+    this.setPlayerIndexActions(parseInt(localStorage.getItem("index")));
+    this.setPlayerIdActions(localStorage.getItem("id"));
+    setTimeout(() => {
+      this.changeSong();
+    }, 300);
 
     let val = parseInt(localStorage.getItem("volume"));
     if (!val) {

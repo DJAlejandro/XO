@@ -16,7 +16,8 @@ export default new Vuex.Store({
         isBack: -1,
         footerPlayer: [],
         isPlaying: false,
-        playerIndex: 0
+        playerIndex: 0,
+        playerId: 0
     },
     mutations: {
         setCookie(state, data) {
@@ -54,6 +55,9 @@ export default new Vuex.Store({
         },
         setPlayerIndex(state, data) {
             state.playerIndex = data
+        },
+        setPlayerId(state, data) {
+            state.playerId = data
         },
     },
     actions: {
@@ -155,7 +159,14 @@ export default new Vuex.Store({
                 }, 100)
             })
         },
-
+        setPlayerIdActions(context, data) {
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    context.commit('setPlayerId', data)
+                    resolve()
+                }, 100)
+            })
+        },
     },
     modules: {}
 })

@@ -38,7 +38,7 @@
           </div>
         </div>
         <div class="album-content-controls">
-          <button type="button" class="btn1">
+          <button type="button" class="btn1" @click="playAlbum">
             <span class="icon-play iconfont"></span>
             <span class="icon-text">Play</span>
           </button>
@@ -84,7 +84,8 @@ export default {
       artistsList: {},
       isModalOpen: false,
       modalData: {},
-      notAlbum: false
+      notAlbum: false,
+      tracks: []
     };
   },
   components: {
@@ -127,6 +128,7 @@ export default {
             songs
           } = data;
           let tracks = this.serialData2(songs);
+          this.tracks = tracks;
           let reg1 = /[a-zA-Z0-9]/;
           let reg2 = /[\u4e00-\u9fa5]/; //汉字
           let descLength = description.length;
@@ -153,6 +155,7 @@ export default {
             subDesc,
             descLength
           };
+
           this.setTrackListActions(tracks);
           this.relatedArtist(this.artist.id);
 
@@ -165,6 +168,11 @@ export default {
           };
           artist.subDesc = subDesc;
         });
+    },
+    playAlbum() {
+      this.setFooterPlayerActions(this.tracks);
+      this.setPlayerIndexActions(0);
+      this.setIsPlayingActions(true);
     }
   },
 

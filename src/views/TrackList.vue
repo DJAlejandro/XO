@@ -24,7 +24,11 @@
           <span class="icon-play iconfont"></span>
         </span>
       </div>
-      <div class="media-title" v-if="track.name">{{track.name}}</div>
+      <div
+        class="media-title"
+        v-if="track.name"
+        :class="{active:track.id===playerId}"
+      >{{track.name}}</div>
       <div class="media-artist">
         <a href="#">
           <span
@@ -208,6 +212,9 @@ export default {
 
     line-height: 48px;
     @include ellipsis;
+    &.active {
+      color: #0ff;
+    }
   }
   .media-artist {
     flex: 1 1 170px;
