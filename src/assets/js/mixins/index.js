@@ -48,6 +48,7 @@ export default {
         ...mapActions(["setIsPlayingActions"]),
         ...mapActions(["setPlayerIndexActions"]),
         ...mapActions(["setPlayerIdActions"]),
+        ...mapActions(["setShuffleTypeActions"]),
 
 
 
@@ -459,7 +460,8 @@ export default {
             isBack: "isBack",
             isPlaying: "isPlaying",
             playerIndex: "playerIndex",
-                        playerId: "playerId"
+            playerId: "playerId",
+            shuffleType: "shuffleType"
 
         })
     },

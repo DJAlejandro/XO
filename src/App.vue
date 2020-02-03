@@ -50,7 +50,7 @@
             <span class="icon-favourite iconfont"></span>
           </div>
         </div>
-        <div class="center-column">
+        <div class="center-column" @click.stop>
           <div class="play-controls">
             <span class="icon-shuffle iconfont" @click="shuffle" :class="{active:shuffleType}"></span>
             <span class="icon-previous iconfont" @click="prev"></span>
@@ -74,7 +74,7 @@
             <time class="currentTime center">/</time>
             <time v-if="player.time">{{InstoreTime(player.time)}}</time>
           </div>
-          <div class="volume-slider">
+          <div class="volume-slider" @click.stop>
             <span class="icon-volume-on iconfont" v-if="volume>0&&volume<50" @click="toggleValue"></span>
             <span class="icon-volume-full iconfont" v-if="volume>=50" @click="toggleValue"></span>
             <span class="icon-volume-off iconfont" v-if="volume===0" @click="toggleValue"></span>
@@ -88,13 +88,37 @@
               ref="nativeRange"
             />
           </div>
-          <div class="play-queue">
+          <div class="play-queue" @click.stop="toggleShow">
             <span class="icon-play-queue iconfont"></span>
           </div>
         </div>
       </div>
     </div>
-
+    <div class="play-queue-side-bar" :class="{show:playqueueShow}">
+      <div class="play-queue-header">
+        <div class="playqueue-title">Play Queue</div>
+        <div class="playqueue-button">Save</div>
+        <div class="playqueue-button">Clear</div>
+      </div>
+      <div class="playqueue-content" v-if="footerPlayer.length>0">
+        <div class="playqueue-item" v-for="item in footerPlayer">
+          <img :src="item.album.picUrl+'?param=50y50'" alt="item.name" />
+          <div class="playqueue-group">
+            <div class="playqueue-group-title" :class="{active:item.id===playerId}">{{item.name}}</div>
+            <div class="playqueue-group-sub-title">
+              <span
+                v-for="(artist,index) in item.artists"
+                @click.stop="goToArtist($event,artist.id)"
+                v-preventReClick
+              >
+                <span v-if="index!==0">,</span>
+                <a>{{artist.name}}</a>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
     <audio src ref="player" control @timeupdate="getCurrentTime" @ended="end"></audio>
   </div>
 </template>
@@ -120,10 +144,10 @@ export default {
       mouseDown: false,
       fillingWidth: 0,
       player: {},
-      shuffleType: false,
       repeatType: 0,
       footerPlayerCopy: [],
-      lastSongId: 0
+      lastSongId: 0,
+      playqueueShow: false
     };
   },
   components: {
@@ -131,7 +155,11 @@ export default {
   },
   methods: {
     shuffle() {
-      this.shuffleType = !this.shuffleType;
+      if (this.shuffleType) {
+        this.setShuffleTypeActions(false);
+      } else {
+        this.setShuffleTypeActions(true);
+      }
     },
     repeat() {
       let type = this.repeatType;
@@ -146,6 +174,7 @@ export default {
     },
     closeSearch() {
       this.setFocusFlagActions(false);
+      this.playqueueShow = false;
     },
     InstoreTime(time) {
       let msec = Math.floor(time / 1000) * 1000;
@@ -332,6 +361,9 @@ export default {
       if (!flag) {
         this.changeSong();
       }
+    },
+    toggleShow() {
+      this.playqueueShow = !this.playqueueShow;
     }
   },
   watch: {
@@ -642,10 +674,100 @@ export default {
           }
         }
         .play-queue {
-          margin: 0 12px;
+          padding: 16px;
+          &:hover {
+            .iconfont {
+              color: #fff;
+              cursor: pointer;
+            }
+          }
           .iconfont {
             color: rgba(229, 238, 255, 0.6);
             font-size: 24px;
+          }
+        }
+      }
+    }
+  }
+  .play-queue-side-bar {
+    width: 388px;
+    position: fixed;
+    right: 44px;
+    top: 60px;
+    transform: translateX(416px);
+    transition: transform 0.6s ease;
+    display: flex;
+    align-items: stretch;
+    height: calc(100vh - 166px);
+    z-index: 70;
+    border-radius: 8px;
+    background-color: #242528;
+    box-shadow: 1px 12px 20px 0 rgba(0, 0, 0, 0.3);
+    padding: 24px 0 0;
+    flex-direction: column;
+    &.show {
+      transform: translateX(0);
+    }
+    .play-queue-header {
+      display: flex;
+      align-items: baseline;
+      margin: 0 16px 20px;
+      flex-shrink: 0;
+      .playqueue-title {
+        font-size: 14px;
+        flex-grow: 1;
+        margin: 0;
+      }
+      .playqueue-button {
+        font-size: 14px;
+        padding: 0 5px;
+        margin-left: 5px;
+        color: hsla(0, 0%, 100%, 0.5);
+      }
+    }
+    .playqueue-content {
+      overflow-y: auto;
+      overflow-x: hidden;
+      flex-grow: 1;
+      .playqueue-item {
+        height: 60px;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        padding: 2px 16px;
+        border-left: 2px solid transparent;
+        border-bottom: 1px solid transparent;
+        border-top: 1px solid transparent;
+        padding-bottom: 6px;
+        padding-top: 6px;
+        margin-bottom: -1px;
+        img {
+          width: 42px;
+          height: 42px;
+          flex-shrink: 0;
+          box-shadow: 1px 4px 7px 0 rgba(0, 0, 0, 0.3);
+        }
+        .playqueue-group {
+          overflow: hidden;
+          margin-left: 16px;
+          line-height: 1.43;
+          flex-grow: 1;
+
+          .playqueue-group-title {
+            font-size: 14px;
+            @include ellipsis;
+            &.active {
+              color: #0ff;
+            }
+          }
+          .playqueue-group-sub-title {
+            font-size: 14px;
+            @include ellipsis;
+            a,
+            span {
+              color: hsla(0, 0%, 100%, 0.5);
+            }
           }
         }
       }

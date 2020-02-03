@@ -38,11 +38,11 @@
           </div>
         </div>
         <div class="album-content-controls">
-          <button type="button" class="btn1" @click="playAlbum">
+          <button type="button" class="btn1" @click="playAlbum(true)">
             <span class="icon-play iconfont"></span>
             <span class="icon-text">Play</span>
           </button>
-          <button type="button" class="btn1">
+          <button type="button" class="btn1" @click="playAlbum(false)">
             <span class="icon-shuffle iconfont"></span>
             <span class="icon-text">Shuffle</span>
           </button>
@@ -169,10 +169,16 @@ export default {
           artist.subDesc = subDesc;
         });
     },
-    playAlbum() {
+    playAlbum(flag) {
       this.setFooterPlayerActions(this.tracks);
-      this.setPlayerIndexActions(0);
       this.setIsPlayingActions(true);
+      if (flag) {
+        this.setShuffleTypeActions(false);
+
+        this.setPlayerIndexActions(0);
+      } else {
+        this.setShuffleTypeActions(true);
+      }
     }
   },
 

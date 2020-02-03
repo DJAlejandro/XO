@@ -17,7 +17,8 @@ export default new Vuex.Store({
         footerPlayer: [],
         isPlaying: false,
         playerIndex: 0,
-        playerId: 0
+        playerId: 0,
+        shuffleType: false
     },
     mutations: {
         setCookie(state, data) {
@@ -59,6 +60,10 @@ export default new Vuex.Store({
         setPlayerId(state, data) {
             state.playerId = data
         },
+        setShuffleType(state, data) {
+            state.shuffleType = data
+        },
+
     },
     actions: {
         setCookieActions(context, data) {
@@ -167,6 +172,15 @@ export default new Vuex.Store({
                 }, 100)
             })
         },
+        setShuffleTypeActions(context, data) {
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    context.commit('setShuffleType', data)
+                    resolve()
+                }, 100)
+            })
+        },
+
     },
     modules: {}
 })

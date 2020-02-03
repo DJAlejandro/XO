@@ -19,11 +19,11 @@
           <span class="moreButton" @click="openModal" v-if="playlist.descLength>100">Read more</span>
         </div>
         <div class="artist-content-controls">
-          <button type="button" class="btn1">
+          <button type="button" class="btn1" @click="playAlbum(true)">
             <span class="icon-play iconfont"></span>
             <span class="icon-text">Play</span>
           </button>
-          <button type="button" class="btn1">
+          <button type="button" class="btn1" @click="playAlbum(false)">
             <span class="icon-shuffle iconfont"></span>
             <span class="icon-text">Shuffle</span>
           </button>
@@ -45,11 +45,11 @@
       </div>
       <div class="artist-content-title">{{playlist.name}}</div>
       <div class="artist-content-controls">
-        <button type="button" class="btn1">
+        <button type="button" class="btn1" @click="playAlbum(true)">
           <span class="icon-play iconfont"></span>
           <span class="icon-text">Play</span>
         </button>
-        <button type="button" class="btn1">
+        <button type="button" class="btn1" @click="playAlbum(false)">
           <span class="icon-shuffle iconfont"></span>
           <span class="icon-text">Shuffle</span>
         </button>
@@ -87,12 +87,13 @@ export default {
   data() {
     return {
       shortFlag: false,
-      needImg:true,
+      needImg: true,
       playlist: [],
       height: 0,
       scrollTop: 0,
       isModalOpen: false,
-      modalData: {}
+      modalData: {},
+      tracks: []
     };
   },
   methods: {
@@ -113,6 +114,19 @@ export default {
           }
         })
         .then(res => {
+          let arr = [];
+          res.data.playlist.tracks.forEach(item => {
+            let { name, id, ar, al, dt } = item;
+            arr.push({
+              name,
+              id,
+              time: dt,
+              artists: ar,
+              album: al
+            });
+          });
+          this.tracks = arr;
+
           let playlist = res.data.playlist;
           let tracks = this.serialData2(playlist.tracks);
 
@@ -140,6 +154,17 @@ export default {
             nickname
           };
         });
+    },
+    playAlbum(flag) {
+      this.setFooterPlayerActions(this.tracks);
+      this.setIsPlayingActions(true);
+      if (flag) {
+        this.setShuffleTypeActions(false);
+
+        this.setPlayerIndexActions(0);
+      } else {
+        this.setShuffleTypeActions(true);
+      }
     }
   },
   components: {
