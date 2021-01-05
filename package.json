@@ -9,7 +9,7 @@
     "dll": "webpack --color  --config ./webpack.dll.js"
   },
   "dependencies": {
-    "axios": "^0.18.0",
+    "axios": "^0.21.1",
     "better-scroll": "^2.0.0-alpha.20",
     "core-js": "^3.3.2",
     "date-fns": "^2.8.1",
